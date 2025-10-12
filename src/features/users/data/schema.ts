@@ -6,6 +6,7 @@ type BaseType = Database['public']['Tables']
 
 export type UserSupabase = BaseType['student']['Row']
 export type FieldTrainingType = BaseType['field_training']['Row']
+export type EmploymentCompaniesType = BaseType['employment_companies']['Row']
 
 export const userSchema = z.object({
   student_id: z.string(),
