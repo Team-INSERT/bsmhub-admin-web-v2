@@ -4,7 +4,7 @@ import { UserDetailType } from '../data/schema'
 type StudentActivitiesProps = {
   datas: {
     profile: UserDetailType['profile']
-    competitions: UserDetailType['student_competitions']
+    // competitions: UserDetailType['student_competitions']
   }
 }
 export const StudentActivities = ({ datas }: StudentActivitiesProps) => {
@@ -34,7 +34,7 @@ export const StudentActivities = ({ datas }: StudentActivitiesProps) => {
             )}
           </dd>
         </div>
-        <div>
+        {/* <div>
           <dt className='mb-1 font-medium'>수상경력</dt>
           <dd>
             {datas.competitions.length > 0 ? (
@@ -55,18 +55,18 @@ export const StudentActivities = ({ datas }: StudentActivitiesProps) => {
               </div>
             )}
           </dd>
-        </div>
+        </div> */}
         <div>
           <dt className='mb-1 font-medium'>프로젝트 및 경험</dt>
           <dd>
-            {datas.profile.project_permissions.length > 0 ? (
+            {datas.profile.project_contributors.length > 0 ? (
               <ul className='space-y-1'>
-                {datas.profile.project_permissions.map(({ projects }) => (
+                {datas.profile.project_contributors.map(({ project }) => (
                   <li
-                    key={projects.project_id}
+                    key={project.project_id}
                     className='border-l-2 border-primary/50 pl-2 text-sm'
                   >
-                    {projects.project_name}
+                    {project.project_name}
                   </li>
                 ))}
               </ul>

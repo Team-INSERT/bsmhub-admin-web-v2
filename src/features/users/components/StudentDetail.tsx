@@ -46,7 +46,7 @@ const componentsMap: Record<DetailType, ValueItemsType> = {
       <StudentActivities
         datas={{
           profile: data.profile,
-          competitions: data.student_competitions,
+          // competitions: data.student_competitions,
         }}
       />
     ),

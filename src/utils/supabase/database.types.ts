@@ -401,34 +401,7 @@ export type Database = {
       [_ in never]: never
     }
     Views: {
-      v_profile_certificates: {
-        Row: {
-          certificate_id: number | null
-          certificate_name: string | null
-          is_software: boolean | null
-          profile_id: string | null
-        }
-        Relationships: []
-      }
-      v_profile_competitions: {
-        Row: {
-          competition_duration: unknown | null
-          competition_id: number | null
-          competition_name: string | null
-          prize: string | null
-          profile_id: string | null
-        }
-        Relationships: []
-      }
-      v_profile_skills: {
-        Row: {
-          language: boolean | null
-          profile_id: string | null
-          skill_id: number | null
-          skill_name: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never
@@ -675,7 +648,6 @@ export type Database = {
           deleted_at: string | null
           employment_id: number
           end_date: string | null
-          is_working: boolean
           job_id: number
           salary: number | null
           start_date: string
@@ -687,7 +659,6 @@ export type Database = {
           deleted_at?: string | null
           employment_id?: number
           end_date?: string | null
-          is_working?: boolean
           job_id: number
           salary?: number | null
           start_date: string
@@ -699,7 +670,6 @@ export type Database = {
           deleted_at?: string | null
           employment_id?: number
           end_date?: string | null
-          is_working?: boolean
           job_id?: number
           salary?: number | null
           start_date?: string
@@ -900,29 +870,35 @@ export type Database = {
       profile: {
         Row: {
           created_at: string
+          description: string | null
           email: string | null
-          isTeam: boolean
+          is_team: boolean
           link: string[] | null
           owner: string | null
           profile_id: string
+          profile_image: string
           profile_name: string
         }
         Insert: {
           created_at?: string
+          description?: string | null
           email?: string | null
-          isTeam: boolean
+          is_team: boolean
           link?: string[] | null
           owner?: string | null
           profile_id?: string
+          profile_image?: string
           profile_name: string
         }
         Update: {
           created_at?: string
+          description?: string | null
           email?: string | null
-          isTeam?: boolean
+          is_team?: boolean
           link?: string[] | null
           owner?: string | null
           profile_id?: string
+          profile_image?: string
           profile_name?: string
         }
         Relationships: []
@@ -1084,23 +1060,29 @@ export type Database = {
       }
       project_contributors: {
         Row: {
-          description: string
+          description: string | null
+          profile_id: string
           project_id: number
-          student_id: string
         }
         Insert: {
-          description: string
+          description?: string | null
+          profile_id?: string
           project_id?: number
-          student_id?: string
         }
         Update: {
-          description?: string
+          description?: string | null
+          profile_id?: string
           project_id?: number
-          student_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "project_contributor_project_id_fkey"
+            foreignKeyName: "project_permissions_profile_id_fkey1"
+            columns: ["profile_id"]
+            referencedRelation: "profile"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "project_permissions_project_id_fkey"
             columns: ["project_id"]
             referencedRelation: "projects"
             referencedColumns: ["project_id"]
@@ -1154,60 +1136,44 @@ export type Database = {
           },
         ]
       }
-      project_permissions: {
-        Row: {
-          authority: boolean | null
-          profile_id: string
-          project_id: number
-        }
-        Insert: {
-          authority?: boolean | null
-          profile_id?: string
-          project_id?: number
-        }
-        Update: {
-          authority?: boolean | null
-          profile_id?: string
-          project_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "project_permissions_profile_id_fkey1"
-            columns: ["profile_id"]
-            referencedRelation: "profile"
-            referencedColumns: ["profile_id"]
-          },
-          {
-            foreignKeyName: "project_permissions_project_id_fkey"
-            columns: ["project_id"]
-            referencedRelation: "projects"
-            referencedColumns: ["project_id"]
-          },
-        ]
-      }
       projects: {
         Row: {
           category_id: number
           created_at: string
           description: string
+          link: string | null
+          owner: string
           project_id: number
+          project_logo: string
           project_name: string
+          project_thumbnail: string
+          skills: string[] | null
           status: number
         }
         Insert: {
           category_id: number
           created_at?: string
           description: string
+          link?: string | null
+          owner: string
           project_id?: number
+          project_logo?: string
           project_name: string
+          project_thumbnail?: string
+          skills?: string[] | null
           status: number
         }
         Update: {
           category_id?: number
           created_at?: string
           description?: string
+          link?: string | null
+          owner?: string
           project_id?: number
+          project_logo?: string
           project_name?: string
+          project_thumbnail?: string
+          skills?: string[] | null
           status?: number
         }
         Relationships: [
@@ -1216,6 +1182,12 @@ export type Database = {
             columns: ["category_id"]
             referencedRelation: "project_category"
             referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "projects_owner_fkey"
+            columns: ["owner"]
+            referencedRelation: "profile"
+            referencedColumns: ["profile_id"]
           },
         ]
       }
@@ -1338,38 +1310,13 @@ export type Database = {
             referencedColumns: ["certificate_id"]
           },
           {
+            foreignKeyName: "student_certificates_certificate_id_fkey1"
+            columns: ["certificate_id"]
+            referencedRelation: "v_profile_certificates"
+            referencedColumns: ["certificate_id"]
+          },
+          {
             foreignKeyName: "student_certificates_student_id_fkey"
-            columns: ["student_id"]
-            referencedRelation: "student"
-            referencedColumns: ["student_id"]
-          },
-        ]
-      }
-      student_competitions: {
-        Row: {
-          competition_id: number
-          prize: string | null
-          student_id: string
-        }
-        Insert: {
-          competition_id?: number
-          prize?: string | null
-          student_id: string
-        }
-        Update: {
-          competition_id?: number
-          prize?: string | null
-          student_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "student_competitions_competition_id_fkey1"
-            columns: ["competition_id"]
-            referencedRelation: "competitions"
-            referencedColumns: ["competition_id"]
-          },
-          {
-            foreignKeyName: "student_competitions_student_id_fkey2"
             columns: ["student_id"]
             referencedRelation: "student"
             referencedColumns: ["student_id"]
@@ -1550,7 +1497,66 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_profile_certificates: {
+        Row: {
+          certificate_id: number | null
+          certificate_name: string | null
+          is_software: boolean | null
+          profile_id: string | null
+        }
+        Relationships: []
+      }
+      v_profile_competitions: {
+        Row: {
+          competition_duration: unknown | null
+          competition_id: number | null
+          competition_name: string | null
+          prize: string | null
+          profile_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_competitions_competition_id_fkey"
+            columns: ["competition_id"]
+            referencedRelation: "competitions"
+            referencedColumns: ["competition_id"]
+          },
+          {
+            foreignKeyName: "profile_competitions_profile_id_fkey"
+            columns: ["profile_id"]
+            referencedRelation: "profile"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
+      v_profile_skills: {
+        Row: {
+          language: boolean | null
+          profile_id: string | null
+          skill_id: number | null
+          skill_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_profile_skills_skill_id"
+            columns: ["skill_id"]
+            referencedRelation: "skills"
+            referencedColumns: ["skill_id"]
+          },
+          {
+            foreignKeyName: "profile_skills_profile_id_fkey"
+            columns: ["profile_id"]
+            referencedRelation: "profile"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "profile_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            referencedRelation: "skills"
+            referencedColumns: ["skill_id"]
+          },
+        ]
+      }
     }
     Functions: {
       delete_claim: {
@@ -1572,6 +1578,14 @@ export type Database = {
       get_my_claims: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_personal_projects: {
+        Args: { profile_id: string }
+        Returns: {
+          project_id: number
+          project_name: string
+          description: string
+        }[]
       }
       is_claims_admin: {
         Args: Record<PropertyKey, never>
