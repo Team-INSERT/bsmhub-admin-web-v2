@@ -63,8 +63,12 @@ export type UserDetailType = MergeDeep<
       profile_skills: {
         skills: Tables<'skills'>
       }[]
-      project_permissions: {
-        projects: Pick<Tables<'projects'>, 'project_id' | 'project_name'>
+      project_contributors: {
+        project: Pick<Tables<'projects'>, 'project_id' | 'project_name'>
+      }[]
+      profile_competitions: {
+        competition: Tables<'competitions'>
+        prize: string
       }[]
     }
     student_after_courses: {
@@ -73,10 +77,6 @@ export type UserDetailType = MergeDeep<
     }[]
     student_certificates: {
       certificates: Tables<'certificates'>
-    }[]
-    student_competitions: {
-      prize: string
-      competitions: Tables<'competitions'>
     }[]
     student_middle_schools: MergeDeep<
       Tables<'student_middle_schools'>,

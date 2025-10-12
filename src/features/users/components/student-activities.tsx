@@ -1,10 +1,14 @@
+import { Tables } from '@/utils/supabase/database.types'
 import { Badge } from '@/components/ui/badge'
 import { UserDetailType } from '../data/schema'
 
 type StudentActivitiesProps = {
   datas: {
     profile: UserDetailType['profile']
-    competitions: UserDetailType['student_competitions']
+    competitions: {
+      competition: Tables<'competitions'>
+      prize: string
+    }[]
   }
 }
 export const StudentActivities = ({ datas }: StudentActivitiesProps) => {
@@ -39,15 +43,17 @@ export const StudentActivities = ({ datas }: StudentActivitiesProps) => {
           <dd>
             {datas.competitions.length > 0 ? (
               <ul className='space-y-1'>
-                {datas.competitions.map(({ prize, competitions }, idx) => (
-                  <li
-                    key={idx}
-                    className='border-l-2 border-primary/50 pl-2 text-sm'
-                  >
-                    {competitions.competition_name}
-                    {prize}
-                  </li>
-                ))}
+                {datas.profile.profile_competitions.map(
+                  ({ prize, competition }, idx) => (
+                    <li
+                      key={idx}
+                      className='border-l-2 border-primary/50 pl-2 text-sm'
+                    >
+                      {competition.competition_name}
+                      {prize}
+                    </li>
+                  )
+                )}
               </ul>
             ) : (
               <div className='mb-5 mt-3 flex justify-center'>
@@ -59,14 +65,14 @@ export const StudentActivities = ({ datas }: StudentActivitiesProps) => {
         <div>
           <dt className='mb-1 font-medium'>프로젝트 및 경험</dt>
           <dd>
-            {datas.profile.project_permissions.length > 0 ? (
+            {datas.profile.project_contributors.length > 0 ? (
               <ul className='space-y-1'>
-                {datas.profile.project_permissions.map(({ projects }) => (
+                {datas.profile.project_contributors.map(({ project }) => (
                   <li
-                    key={projects.project_id}
+                    key={project.project_id}
                     className='border-l-2 border-primary/50 pl-2 text-sm'
                   >
-                    {projects.project_name}
+                    {project.project_name}
                   </li>
                 ))}
               </ul>

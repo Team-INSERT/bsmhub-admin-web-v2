@@ -21,10 +21,6 @@ export const useUserDetailQuery = (
         student_certificates(
           certificates(*)
         ),
-        student_competitions(
-          prize,
-          competitions(*)
-        ),
         field_training!left(
           *,
           companies(*),
@@ -68,14 +64,18 @@ export const useUserDetailQuery = (
           profile_skills(
             skills!fk_profile_skills_skill_id(*)
           ),
-          project_permissions (
-            projects(project_id, project_name)
+          project_contributors (
+            project:projects(project_id, project_name)
+          ),
+          profile_competitions (
+            competition:competitions(*),
+            prize
           )
         ) 
       `
       )
       .eq('student_id', student_id)
-      .eq('profile.isTeam', false)
+      .eq('profile.is_team', false)
       .limit(1)
 
     if (error) {
