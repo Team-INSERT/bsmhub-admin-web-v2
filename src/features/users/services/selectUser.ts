@@ -66,6 +66,10 @@ export const useUserDetailQuery = (
           ),
           project_contributors (
             project:projects(project_id, project_name)
+          ),
+          profile_competitions (
+            competition:competitions(*),
+            prize
           )
         ) 
       `

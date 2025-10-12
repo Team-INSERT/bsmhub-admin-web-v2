@@ -66,6 +66,10 @@ export type UserDetailType = MergeDeep<
       project_contributors: {
         project: Pick<Tables<'projects'>, 'project_id' | 'project_name'>
       }[]
+      profile_competitions: {
+        competition: Tables<'competitions'>
+        prize: string
+      }[]
     }
     student_after_courses: {
       grade: number
