@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { DateRange } from 'react-day-picker'
+import { formatDate } from '@/utils/formatDate'
 import { getCurrentFieldTraining } from '@/utils/users/getCurrentFieldTraining'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -77,6 +78,13 @@ export const FieldTraining = ({
       currentFieldTraining &&
       currentRow
     ) {
+      const formatDate = (date: Date) => {
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+      }
+
       setEditData([
         {
           action: 'update',
@@ -85,8 +93,8 @@ export const FieldTraining = ({
               student_id: currentRow.student_id,
               company_id: currentFieldTraining.company_id,
               job_id: updateJob,
-              start_date: updateDate.from.toISOString().split('T')[0],
-              end_date: updateDate.to.toISOString().split('T')[0],
+              start_date: formatDate(updateDate.from),
+              end_date: formatDate(updateDate.to),
             },
           },
         },
@@ -225,11 +233,19 @@ export const FieldTraining = ({
                     selected={addDate}
                     onSelect={(range) => {
                       setAddDate(range)
+                      const formatDate = (date: Date) => {
+                        const year = date.getFullYear()
+                        const month = String(date.getMonth() + 1).padStart(
+                          2,
+                          '0'
+                        )
+                        const day = String(date.getDate()).padStart(2, '0')
+                        return `${year}-${month}-${day}`
+                      }
                       setAddFieldTraining((prev) => ({
                         ...prev,
-                        start_date:
-                          range?.from?.toISOString().split('T')[0] ?? '',
-                        end_date: range?.to?.toISOString().split('T')[0] ?? '',
+                        start_date: range?.from ? formatDate(range.from) : '',
+                        end_date: range?.to ? formatDate(range.to) : '',
                       }))
                     }}
                     className='rounded-lg border border-border p-2'
@@ -323,6 +339,25 @@ export const FieldTraining = ({
                     ) {
                       setAdd(true)
 
+                      const formatDateTime = (date: Date) => {
+                        const year = date.getFullYear()
+                        const month = String(date.getMonth() + 1).padStart(
+                          2,
+                          '0'
+                        )
+                        const day = String(date.getDate()).padStart(2, '0')
+                        const hours = String(date.getHours()).padStart(2, '0')
+                        const minutes = String(date.getMinutes()).padStart(
+                          2,
+                          '0'
+                        )
+                        const seconds = String(date.getSeconds()).padStart(
+                          2,
+                          '0'
+                        )
+                        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+                      }
+
                       const editDataArray: UserEditType = [
                         {
                           action: 'add' as const,
@@ -331,7 +366,7 @@ export const FieldTraining = ({
                               ...addFieldTraining,
                               lead_or_part: false,
                               student_id: currentRow.student_id,
-                              created_at: String(new Date()),
+                              created_at: formatDateTime(new Date()),
                             },
                           },
                         },
@@ -345,6 +380,35 @@ export const FieldTraining = ({
                           employmentStartDate.getDate() + 1
                         )
 
+                        const formatDate = (date: Date) => {
+                          const year = date.getFullYear()
+                          const month = String(date.getMonth() + 1).padStart(
+                            2,
+                            '0'
+                          )
+                          const day = String(date.getDate()).padStart(2, '0')
+                          return `${year}-${month}-${day}`
+                        }
+
+                        const formatDateTime = (date: Date) => {
+                          const year = date.getFullYear()
+                          const month = String(date.getMonth() + 1).padStart(
+                            2,
+                            '0'
+                          )
+                          const day = String(date.getDate()).padStart(2, '0')
+                          const hours = String(date.getHours()).padStart(2, '0')
+                          const minutes = String(date.getMinutes()).padStart(
+                            2,
+                            '0'
+                          )
+                          const seconds = String(date.getSeconds()).padStart(
+                            2,
+                            '0'
+                          )
+                          return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+                        }
+
                         editDataArray.push({
                           action: 'add' as const,
                           datas: {
@@ -352,11 +416,9 @@ export const FieldTraining = ({
                               student_id: currentRow.student_id,
                               company_id: addFieldTraining.company_id,
                               job_id: addFieldTraining.job_id,
-                              start_date: employmentStartDate
-                                .toISOString()
-                                .split('T')[0],
+                              start_date: formatDate(employmentStartDate),
                               end_date: null, // 취업 종료일은 null로 설정
-                              created_at: new Date().toISOString(),
+                              created_at: formatDateTime(new Date()),
                             },
                           },
                         })
@@ -384,8 +446,8 @@ export const FieldTraining = ({
                     <dt className='w-24 flex-shrink-0 font-medium'>
                       실습 기간:
                     </dt>
-                    <dd>{currentFieldTraining.start_date ?? '-'}</dd> ~{' '}
-                    <dd>{currentFieldTraining.end_date ?? '-'}</dd>
+                    <dd>{formatDate(currentFieldTraining.start_date)}</dd> ~{' '}
+                    <dd>{formatDate(currentFieldTraining.end_date)}</dd>
                   </div>
                   <div className='flex gap-2'>
                     <dt className='w-24 flex-shrink-0 font-medium'>

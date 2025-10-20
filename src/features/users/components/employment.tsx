@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { DateRange } from 'react-day-picker'
+import { formatDate } from '@/utils/formatDate'
 import { getCurrentFieldTraining } from '@/utils/users/getCurrentFieldTraining'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -81,9 +82,9 @@ export const Employment = ({
               student_id: currentRow.student_id,
               company_id: currentFieldTraining.company_id,
               job_id: updateJob,
-              start_date: updateDate.from.toISOString().split('T')[0],
-              end_date: updateDate.to.toISOString().split('T')[0],
-              deleted_at: isDeleted ? new Date().toISOString() : null,
+              start_date: updateDate.from ? formatDate(updateDate.from) : '',
+              end_date: updateDate.to ? formatDate(updateDate.to) : '',
+              deleted_at: isDeleted ? formatDate(new Date()) : null,
             },
           },
         },
@@ -192,9 +193,8 @@ export const Employment = ({
                       setAddDate(range)
                       setAddFieldTraining((prev) => ({
                         ...prev,
-                        start_date:
-                          range?.from?.toISOString().split('T')[0] ?? '',
-                        end_date: range?.to?.toISOString().split('T')[0] ?? '',
+                        start_date: range?.from ? formatDate(range.from) : '',
+                        end_date: range?.to ? formatDate(range.to) : '',
                       }))
                     }}
                     className='rounded-lg border border-border p-2'
@@ -268,7 +268,7 @@ export const Employment = ({
                             employment_companies: {
                               ...addFieldTraining,
                               student_id: currentRow.student_id,
-                              created_at: String(new Date()),
+                              created_at: formatDate(new Date()),
                             },
                           },
                         },
@@ -294,8 +294,8 @@ export const Employment = ({
                     <dt className='w-24 flex-shrink-0 font-medium'>
                       취업 기간:
                     </dt>
-                    <dd>{currentFieldTraining.start_date ?? '-'}</dd> ~{' '}
-                    <dd>{currentFieldTraining.end_date ?? '-'}</dd>
+                    <dd>{formatDate(currentFieldTraining.start_date)}</dd> ~{' '}
+                    <dd>{formatDate(currentFieldTraining.end_date)}</dd>
                   </div>
                   <div className='flex gap-2'>
                     <dt className='w-24 flex-shrink-0 font-medium'>
