@@ -189,16 +189,6 @@ export const FieldTraining = ({
           }),
       ])
 
-      // 약간의 지연 후 한 번 더 무효화 (확실한 새로고침을 위해)
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['users'] })
-        if (currentRow?.student_id) {
-          queryClient.invalidateQueries({
-            queryKey: [`user-${currentRow.student_id}`],
-          })
-        }
-      }, 100)
-
       toast({
         variant: 'default',
         title: '조기종료 처리 완료',
