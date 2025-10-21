@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { DateRange } from 'react-day-picker'
 import { formatDate } from '@/utils/formatDate'
 import { getCurrentFieldTraining } from '@/utils/users/getCurrentFieldTraining'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
@@ -19,6 +18,7 @@ import { useUsers } from '../context/users-context'
 import { UserDetailType } from '../data/schema'
 import { FieldTrainingUpdate } from '../services/field-training/handleFieldTraining'
 import { useJobListQuery } from '../services/field-training/selectJobList'
+import StatusBedge from './status-bedge'
 
 type addFieldTrainingType = Pick<
   FieldTrainingUpdate,
@@ -300,12 +300,7 @@ export const Employment = ({
                         <dd>{formatDate(currentFieldTraining.start_date)}</dd> ~{' '}
                         <dd>{formatDate(currentFieldTraining.end_date)}</dd>
                       </div>
-                      <Badge>
-                        {currentFieldTraining.end_date &&
-                        new Date(currentFieldTraining.end_date) > new Date()
-                          ? '진행 중'
-                          : '종료'}
-                      </Badge>
+                      {StatusBedge(currentFieldTraining)}
                     </div>
                   </div>
                   <div className='flex gap-2'>
