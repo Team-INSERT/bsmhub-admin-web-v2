@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { DateRange } from 'react-day-picker'
+import { formatDate } from '@/utils/formatDate'
 import { getCurrentFieldTraining } from '@/utils/users/getCurrentFieldTraining'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -48,6 +49,7 @@ export const FieldTraining = ({
     useState<addFieldTrainingType | null>(null)
   const [add, setAdd] = useState<boolean>(false)
   const [autoEmployment, setAutoEmployment] = useState<boolean>(false)
+  const [deleteToggle, setDeleteToggle] = useState<boolean>(false)
 
   useEffect(() => {
     if (!editingSection) {
@@ -64,6 +66,7 @@ export const FieldTraining = ({
       setAddFieldTraining(null)
       setAdd(false)
       setAutoEmployment(false)
+      setDeleteToggle(false)
     }
   }, [editingSection, currentFieldTraining])
 
@@ -76,6 +79,13 @@ export const FieldTraining = ({
       currentFieldTraining &&
       currentRow
     ) {
+      const formatDate = (date: Date) => {
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+      }
+
       setEditData([
         {
           action: 'update',
@@ -84,8 +94,8 @@ export const FieldTraining = ({
               student_id: currentRow.student_id,
               company_id: currentFieldTraining.company_id,
               job_id: updateJob,
-              start_date: format(updateDate.from, 'yyyy-MM-dd'),
-              end_date: format(updateDate.to, 'yyyy-MM-dd'),
+              start_date: formatDate(updateDate.from),
+              end_date: formatDate(updateDate.to),
             },
           },
         },
@@ -181,6 +191,35 @@ export const FieldTraining = ({
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className='flex items-center justify-between pt-2'>
+                    <div className='flex items-center space-x-2'>
+                      <span className='font-medium'>삭제</span>
+                      <Switch
+                        id='delete-field-training'
+                        checked={deleteToggle}
+                        onCheckedChange={(checked) => {
+                          setDeleteToggle(checked)
+                          if (checked && currentFieldTraining && currentRow) {
+                            setEditData([
+                              {
+                                action: 'delete',
+                                datas: {
+                                  field_training: {
+                                    student_id: currentRow.student_id,
+                                    company_id: currentFieldTraining.company_id,
+                                    job_id: currentFieldTraining.job_id,
+                                    start_date: currentFieldTraining.start_date,
+                                    end_date:
+                                      currentFieldTraining.end_date ?? '',
+                                  },
+                                },
+                              },
+                            ])
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -200,11 +239,19 @@ export const FieldTraining = ({
                     selected={addDate}
                     onSelect={(range: DateRange | undefined) => {
                       setAddDate(range)
+                      const formatDate = (date: Date) => {
+                        const year = date.getFullYear()
+                        const month = String(date.getMonth() + 1).padStart(
+                          2,
+                          '0'
+                        )
+                        const day = String(date.getDate()).padStart(2, '0')
+                        return `${year}-${month}-${day}`
+                      }
                       setAddFieldTraining((prev) => ({
                         ...prev,
-                        start_date:
-                          range?.from?.toISOString().split('T')[0] ?? '',
-                        end_date: range?.to?.toISOString().split('T')[0] ?? '',
+                        start_date: range?.from ? formatDate(range.from) : '',
+                        end_date: range?.to ? formatDate(range.to) : '',
                       }))
                     }}
                     className='w-full max-w-full rounded-lg border border-border p-2'
@@ -294,6 +341,25 @@ export const FieldTraining = ({
                     ) {
                       setAdd(true)
 
+                      const formatDateTime = (date: Date) => {
+                        const year = date.getFullYear()
+                        const month = String(date.getMonth() + 1).padStart(
+                          2,
+                          '0'
+                        )
+                        const day = String(date.getDate()).padStart(2, '0')
+                        const hours = String(date.getHours()).padStart(2, '0')
+                        const minutes = String(date.getMinutes()).padStart(
+                          2,
+                          '0'
+                        )
+                        const seconds = String(date.getSeconds()).padStart(
+                          2,
+                          '0'
+                        )
+                        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+                      }
+
                       const editDataArray: UserEditType = [
                         {
                           action: 'add' as const,
@@ -302,7 +368,7 @@ export const FieldTraining = ({
                               ...addFieldTraining,
                               lead_or_part: false,
                               student_id: currentRow.student_id,
-                              created_at: format(new Date(), 'yyyy-MM-dd'),
+                              created_at: formatDateTime(new Date()),
                             },
                           },
                         },
@@ -316,6 +382,35 @@ export const FieldTraining = ({
                           employmentStartDate.getDate() + 1
                         )
 
+                        const formatDate = (date: Date) => {
+                          const year = date.getFullYear()
+                          const month = String(date.getMonth() + 1).padStart(
+                            2,
+                            '0'
+                          )
+                          const day = String(date.getDate()).padStart(2, '0')
+                          return `${year}-${month}-${day}`
+                        }
+
+                        const formatDateTime = (date: Date) => {
+                          const year = date.getFullYear()
+                          const month = String(date.getMonth() + 1).padStart(
+                            2,
+                            '0'
+                          )
+                          const day = String(date.getDate()).padStart(2, '0')
+                          const hours = String(date.getHours()).padStart(2, '0')
+                          const minutes = String(date.getMinutes()).padStart(
+                            2,
+                            '0'
+                          )
+                          const seconds = String(date.getSeconds()).padStart(
+                            2,
+                            '0'
+                          )
+                          return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+                        }
+
                         editDataArray.push({
                           action: 'add' as const,
                           datas: {
@@ -323,12 +418,10 @@ export const FieldTraining = ({
                               student_id: currentRow.student_id,
                               company_id: addFieldTraining.company_id,
                               job_id: addFieldTraining.job_id,
-                              start_date: format(
-                                employmentStartDate,
-                                'yyyy-MM-dd'
-                              ),
+
+                              start_date: formatDate(employmentStartDate),
                               end_date: null, // 취업 종료일은 null로 설정
-                              created_at: format(new Date(), 'yyyy-MM-dd'),
+                              created_at: formatDateTime(new Date()),
                             },
                           },
                         })
@@ -356,13 +449,9 @@ export const FieldTraining = ({
                     <dt className='w-24 flex-shrink-0 font-medium'>
                       실습 기간:
                     </dt>
-                    <dd>
-                      {currentFieldTraining.start_date?.split('T')[0] ?? '-'}
-                    </dd>{' '}
-                    ~{' '}
-                    <dd>
-                      {currentFieldTraining.end_date?.split('T')[0] ?? '-'}
-                    </dd>
+
+                    <dd>{formatDate(currentFieldTraining.start_date)}</dd> ~{' '}
+                    <dd>{formatDate(currentFieldTraining.end_date)}</dd>
                   </div>
                   <div className='flex flex-col gap-1 sm:flex-row sm:gap-2'>
                     <dt className='w-24 flex-shrink-0 font-medium'>

@@ -6,18 +6,18 @@ import { CompanySupabase } from '../data/schema'
 export const deleteCompany = async (
   company_id: Pick<CompanySupabase, 'company_id'>
 ): Promise<CompanySupabase> => {
-  const { data ,error } = await supabase
+  const { data, error } = await supabase
     .from('companies')
     .delete()
     .eq('company_id', company_id.company_id)
     .select('*')
-    .single();
+    .single()
 
   if (error) {
-    console.error('Error deleting company:', error)
+    // console.error('Error deleting company:', error)
     throw new Error(error.message)
   }
-  return data; 
+  return data
 }
 
 export const useDeleteCompanyMutation = () => {
@@ -27,7 +27,7 @@ export const useDeleteCompanyMutation = () => {
   const mutation = useMutation({
     mutationFn: deleteCompany,
     onSuccess: (data) => {
-      console.log('Company deleted successfully:', data)
+      // console.log('Company deleted successfully:', data)
       queryClient.invalidateQueries({ queryKey: ['companies'] })
       toast({
         variant: 'default',

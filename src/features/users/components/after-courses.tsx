@@ -1,76 +1,89 @@
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CircleX } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CircleX } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { useEditUser } from '../context/edit-context'
+import { UserDetailType } from '../data/schema'
+import { useAfterCoursesQuery } from '../services/after-courses/selectAfterCourses'
 
-import { useEditUser } from "../context/edit-context";
-import { UserDetailType } from "../data/schema";
-import { useAfterCoursesQuery } from "../services/after-courses/selectAfterCourses";
-
-export const AfterCourses = ({ datas }: {datas: UserDetailType['student_after_courses']}) => {
+export const AfterCourses = ({
+  datas,
+}: {
+  datas: UserDetailType['student_after_courses']
+}) => {
   const { editingSection } = useEditUser()
-  const { data: afterCourses = [] } = useAfterCoursesQuery() 
+  const { data: afterCourses = [] } = useAfterCoursesQuery()
 
   const grades: number[] = [1, 2, 3]
-  const gradeGroup = grades.map(grade => {
-    const filtered = datas.filter(item => item.grade === grade)
-    const courses = filtered.map(item => ({
+  const gradeGroup = grades.map((grade) => {
+    const filtered = datas.filter((item) => item.grade === grade)
+    const courses = filtered.map((item) => ({
       id: item.after_courses.after_course_id,
-      name: item.after_courses.after_course_name
+      name: item.after_courses.after_course_name,
     }))
 
     return {
       grade,
-      course_ids: courses.map(course => course.id),
-      course_names: courses.map(courses => courses.name)
+      course_ids: courses.map((course) => course.id),
+      course_names: courses.map((courses) => courses.name),
     }
   })
 
   return (
     <div>
-      <div className="flex flex-col gap-1">
-        {gradeGroup.map(data => (
+      <div className='flex flex-col gap-1'>
+        {gradeGroup.map((data) => (
           <div key={data.grade}>
-            <span className="font-medium">{data.grade}학년: </span>
+            <span className='font-medium'>{data.grade}학년: </span>
             {editingSection === 'after_courses' ? (
-              <div className="mt-0.5 mb-2">
+              <div className='mb-2 mt-0.5'>
                 <Select>
                   <SelectTrigger>
                     <SelectValue placeholder='방과후 선택'></SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {afterCourses.map(afterCourse => (
-                      <SelectItem value={String(afterCourse.after_course_id)}>{afterCourse.after_course_name}</SelectItem>
+                    {afterCourses.map((afterCourse) => (
+                      <SelectItem value={String(afterCourse.after_course_id)}>
+                        {afterCourse.after_course_name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <div>
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className='mt-2 flex flex-wrap gap-2'>
                     {data.course_names.map((name, idx) => (
-                        <Badge
-                          key={idx}
-                          variant="secondary"
-                          className="flex items-center gap-2 w-fit"
-                        >
+                      <Badge
+                        key={idx}
+                        variant='secondary'
+                        className='flex w-fit items-center gap-2'
+                      >
                         {name}
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-2 w-2 rounded-full"
+                          variant='ghost'
+                          size='icon'
+                          className='h-2 w-2 rounded-full'
                         >
                           <CircleX size={12} />
                         </Button>
-                        </Badge>
+                      </Badge>
                     ))}
                   </div>
                 </div>
               </div>
             ) : (
-              <span>{data.course_names.length > 0 ? (
-                data.course_names.join(', ')
-              ): (
-                <span className="ml-3">-</span>
-              )}</span>
+              <span>
+                {data.course_names.length > 0 ? (
+                  data.course_names.join(', ')
+                ) : (
+                  <span className='ml-3'>-</span>
+                )}
+              </span>
             )}
           </div>
         ))}

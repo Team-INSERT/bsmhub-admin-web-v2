@@ -18,7 +18,7 @@ interface DataTableRowActionsProps {
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
-  const { setOpen, setCurrentRow } = useUsers()
+  const { open, setOpen, setOpenState, currentRow, setCurrentRow } = useUsers()
   return (
     <>
       <DropdownMenu modal={false}>
@@ -34,8 +34,19 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         <DropdownMenuContent align='end' className='w-[160px]'>
           <DropdownMenuItem
             onClick={() => {
-              setCurrentRow(row.original)
-              setOpen('edit')
+              const isEditingThisRow =
+                open === 'edit' &&
+                currentRow?.student_id === row.original.student_id
+
+              if (isEditingThisRow) {
+                // Same user, so toggle off.
+                setOpen('edit')
+              } else {
+                // Different user or panel is closed.
+                // Set the user and force the 'edit' panel to be open.
+                setCurrentRow(row.original)
+                setOpenState('edit')
+              }
             }}
           >
             Edit

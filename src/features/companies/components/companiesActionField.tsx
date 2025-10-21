@@ -23,13 +23,14 @@ export const CompanyFormField = React.memo(
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className='grid items-center grid-cols-6 space-y-0 gap-x-4 gap-y-1'>
+        <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
           <FormLabel className='col-span-2 text-right'>{label}</FormLabel>
           <FormControl>
             <Input
               placeholder={placeholder}
               className='col-span-4'
               {...field}
+              value={field.value || ''}
             />
           </FormControl>
           <FormMessage className='col-span-4 col-start-3' />

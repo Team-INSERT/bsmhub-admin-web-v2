@@ -44,11 +44,11 @@ export function UsersDeleteDialog({ open, onOpenChange, currentRow }: Props) {
       desc={
         <div className='space-y-4'>
           <p className='mb-2'>
-            학생 {' '}
-            <span className='font-bold'>{currentRow.name}</span>를 정말 삭제하시겠습니까?
+            학생 <span className='font-bold'>{currentRow.name}</span>를 정말
+            삭제하시겠습니까?
+            <br />이 작업은 수행하면 되돌릴 수 없습니다.
             <br />
-            이 작업은 수행하면{' '}되돌릴 수 없습니다.<br /><br/>
-            
+            <br />
           </p>
 
           <Label className='my-2'>

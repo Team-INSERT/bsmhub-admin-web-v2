@@ -54,14 +54,11 @@ export const columns: ColumnDef<Company>[] = [
   ...Object.entries(companyFieldMetadata).map(([name, metadata]) => ({
     accessorKey: name,
     header: ({ column }: { column: Column<Company> }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={metadata.label}
-      />
+      <DataTableColumnHeader column={column} title={metadata.label} />
     ),
     cell: ({ row }: { row: Row<Company> }) => {
-      const value = row.getValue(name);
-      return <LongText className='max-w-36'>{String(value)}</LongText>;
+      const value = row.getValue(name)
+      return <LongText className='max-w-36'>{String(value)}</LongText>
     },
     ...(metadata.isRepresentative && {
       ...COMPANY_REPRESENTATIVE_FIELD_ATTRIBUTE,

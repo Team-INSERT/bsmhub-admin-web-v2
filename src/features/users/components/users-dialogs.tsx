@@ -1,7 +1,7 @@
-import { useUsers } from '../context/users-context'
-import { UsersDeleteDialog } from './users-delete-dialog'
-import { StudentDetail } from './StudentDetail'
 import EditProvider from '../context/edit-context'
+import { useUsers } from '../context/users-context'
+import { StudentDetail } from './StudentDetail'
+import { UsersDeleteDialog } from './users-delete-dialog'
 
 export function UsersDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useUsers()
@@ -10,11 +10,9 @@ export function UsersDialogs() {
       {currentRow && (
         <>
           {open === 'edit' && (
-            <div className="w-full lg:w-[420px] h-[calc(100vh-150px)] sticky top-[80px]">
+            <div className='sticky top-[80px] h-[calc(100vh-150px)] w-full lg:w-[420px]'>
               <EditProvider>
-                <StudentDetail
-                  student_id={currentRow.student_id}
-                />
+                <StudentDetail student_id={currentRow.student_id} />
               </EditProvider>
             </div>
           )}

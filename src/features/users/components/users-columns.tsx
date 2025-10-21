@@ -1,10 +1,10 @@
 import { ColumnDef, Column, Row } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
+import { getUserComponent } from '@/utils/users/getUserComponent'
 import { Checkbox } from '@/components/ui/checkbox'
 import { User, userColumnsMetaData } from '../data/schema'
 import { DataTableColumnHeader } from './data-table-column-header'
 import { DataTableRowActions } from './data-table-row-actions'
-import { getUserComponent } from '@/utils/users/getUserComponent'
 
 const USER_REPRESENTATIVE_FIELD_ATTRIBUTE = {
   meta: {
@@ -50,11 +50,8 @@ export const columns: ColumnDef<User>[] = [
   },
   ...Object.entries(userColumnsMetaData).map(([name, metadata]) => ({
     accessorKey: name,
-    header: ({ column }: { column: Column<User>}) => (
-      <DataTableColumnHeader 
-        column={column}
-        title={metadata.label}
-      />
+    header: ({ column }: { column: Column<User> }) => (
+      <DataTableColumnHeader column={column} title={metadata.label} />
     ),
     cell: ({ row }: { row: Row<User> }) => {
       const value = row.getValue(name)
@@ -62,12 +59,12 @@ export const columns: ColumnDef<User>[] = [
       return getUserComponent(name, String(value ?? ''))
     },
     ...(metadata.isRepresentative && {
-      ...USER_REPRESENTATIVE_FIELD_ATTRIBUTE
-    })
+      ...USER_REPRESENTATIVE_FIELD_ATTRIBUTE,
+    }),
   })),
 
   {
     id: 'actions',
-    cell: DataTableRowActions
-  }
+    cell: DataTableRowActions,
+  },
 ]

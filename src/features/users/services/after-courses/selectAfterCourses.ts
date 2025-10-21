@@ -1,10 +1,8 @@
-import supabase from "@/utils/supabase/client"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery } from '@tanstack/react-query'
+import supabase from '@/utils/supabase/client'
 
 const selectAfterCourses = async () => {
-  const { data, error } = await supabase
-    .from('after_courses')
-    .select('*')
+  const { data, error } = await supabase.from('after_courses').select('*')
 
   if (error) {
     throw new Error(error.message)
@@ -18,6 +16,6 @@ export const useAfterCoursesQuery = () => {
     queryKey: ['afterCourses'],
     queryFn: selectAfterCourses,
     staleTime: 240000,
-    retry: 2
+    retry: 2,
   })
 }

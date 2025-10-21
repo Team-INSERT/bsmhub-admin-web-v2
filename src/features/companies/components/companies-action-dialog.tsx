@@ -13,8 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Form } from '@/components/ui/form'
 import {
-  Company,
-  // companySchema,
+  Company, // companySchema,
   companyFormSchema,
   CompanyForm,
   companyFieldMetadata,
@@ -41,7 +40,9 @@ export function CompaniesActionDialog({
       isEdit
         ? { ...currentRow, isEdit }
         : {
-          ...Object.fromEntries(Object.keys(companyFieldMetadata).map(key => [key, ''])),
+            ...Object.fromEntries(
+              Object.keys(companyFieldMetadata).map((key) => [key, ''])
+            ),
             isEdit,
           },
     [currentRow, isEdit]

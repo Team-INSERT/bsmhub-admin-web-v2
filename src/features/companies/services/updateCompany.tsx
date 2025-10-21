@@ -14,7 +14,6 @@ export const updateCompany = async (
     .single()
 
   if (error) {
-    console.error('Error updating company:', error)
     throw new Error(error.message)
   }
   return data
@@ -27,7 +26,7 @@ export const useUpdateCompanyMutation = () => {
   const mutation = useMutation({
     mutationFn: updateCompany,
     onSuccess: (data) => {
-      console.log('Company updated successfully:', data)
+      // console.log('Company updated successfully:', data)
       queryClient.invalidateQueries({ queryKey: ['companies'] })
       toast({
         variant: 'default',

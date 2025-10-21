@@ -5,8 +5,7 @@ import { toast } from '@/hooks/use-toast'
 import CodeBlock from '@/components/code-block'
 
 export function handleServerError(error: unknown) {
-  // eslint-disable-next-line no-console
-  console.log(error)
+  // console.log(error)
 
   let errTitle = '알 수 없는 오류가 발생했습니다.'
   let errDescription = '나중에 다시 시도해주십시오.'

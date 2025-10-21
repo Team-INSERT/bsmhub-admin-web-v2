@@ -12,15 +12,15 @@ export const Route = createFileRoute('/(auth)/callback')({
         return acc
       }, {})
 
-    console.log(auth)
+    // console.log(auth)
     if (!auth.access_token || !auth.refresh_token) {
       throw new Error('Missing access_token or refresh_token')
     }
-    const { data, error } = await supabase.auth.setSession({
+    const { data: _data, error } = await supabase.auth.setSession({
       access_token: auth.access_token,
       refresh_token: auth.refresh_token,
     })
-    console.log(data)
+    // console.log(data)
     if (error) {
       throw new Error(error.message)
     }
@@ -32,7 +32,7 @@ export const Route = createFileRoute('/(auth)/callback')({
 
 export function AuthCallback() {
   const data = Route.useLoaderData()
-  console.log(data)
+  // console.log(data)
   // return redirect({ to: '/' })
   return (
     <div>

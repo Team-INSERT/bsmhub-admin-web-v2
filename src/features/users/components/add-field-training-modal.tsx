@@ -27,9 +27,9 @@ import { insertJob } from '@/features/users/services/field-training/insertJob'
 const formSchemas = {
   company: z.object({
     company_name: z.string().min(1, '회사명은 필수입니다'),
-    company_address: z.string().optional(),
-    hr_manager_name: z.string().optional(),
-    hr_manager_phone: z.string().optional(),
+    company_address: z.string().nullable().default(null),
+    hr_manager_name: z.string().nullable().default(null),
+    hr_manager_phone: z.string().nullable().default(null),
   }),
   job: z.object({
     job_name: z.string().min(1, '직무명은 필수입니다'),
@@ -165,6 +165,7 @@ export function AddFieldTrainingModal({
                         <Input
                           placeholder={field.placeholder}
                           {...fieldProps}
+                          value={fieldProps.value || ''}
                         />
                       </FormControl>
                       <FormMessage />

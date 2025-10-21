@@ -66,7 +66,8 @@ export function CompaniesDeleteDialog({
             {/* <span className='font-bold'>{currentRow.role.toUpperCase()}</span>을
             가진 회사가 삭제됩니다. */}
             되돌릴 수 없습니다.
-            <br /><br/>
+            <br />
+            <br />
           </p>
 
           <Label className='my-2'>

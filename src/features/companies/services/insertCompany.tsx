@@ -28,7 +28,7 @@ export const useInsertCompanyMutation = () => {
   const mutation = useMutation({
     mutationFn: insertCompany,
     onSuccess: (data) => {
-      console.log('Company inserted successfully:', data)
+      // console.log('Company inserted successfully:', data)
       queryClient.invalidateQueries({ queryKey: ['companies'] })
       toast({
         variant: 'default',

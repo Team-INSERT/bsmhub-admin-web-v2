@@ -6,6 +6,7 @@ type BaseType = Database['public']['Tables']
 
 export type UserSupabase = BaseType['student']['Row']
 export type FieldTrainingType = BaseType['field_training']['Row']
+export type EmploymentCompaniesType = BaseType['employment_companies']['Row']
 
 export const userSchema = z.object({
   student_id: z.string(),
@@ -57,13 +58,17 @@ export type UserDetailType = MergeDeep<
           'military_service_status_name'
         >
       }
-    >
-    profile: {
+    >[]
+    profile?: {
       profile_skills: {
         skills: Tables<'skills'>
       }[]
-      project_permissions: {
-        projects: Pick<Tables<'projects'>, 'project_id' | 'project_name'>
+      project_contributors: {
+        project: Pick<Tables<'projects'>, 'project_id' | 'project_name'>
+      }[]
+      profile_competitions: {
+        competition: Tables<'competitions'>
+        prize: string
       }[]
     }
     student_after_courses: {
@@ -73,16 +78,12 @@ export type UserDetailType = MergeDeep<
     student_certificates: {
       certificates: Tables<'certificates'>
     }[]
-    student_competitions: {
-      prize: string
-      competitions: Tables<'competitions'>
-    }[]
     student_middle_schools: MergeDeep<
       Tables<'student_middle_schools'>,
       {
         middle_schools: Tables<'middle_schools'>
       }
-    >
+    >[]
     student_universities: {
       universities: Tables<'universities'>
     }[]
@@ -91,7 +92,7 @@ export type UserDetailType = MergeDeep<
 
 export type UserEditType = {
   action: 'add' | 'update' | 'delete'
-  datas: 
+  datas:
     | { field_training: BaseType['field_training']['Update'] }
     | { employment_companies: BaseType['employment_companies']['Update'] }
 }[]

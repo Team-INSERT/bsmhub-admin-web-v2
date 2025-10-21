@@ -9,7 +9,7 @@ export const useUserDetailQuery = (
     const { data, error } = await supabase
       .from('student')
       .select(
-        `student_id, name,
+        `*,
         departments(*),
         student_jobs(
           jobs(*)
@@ -21,16 +21,12 @@ export const useUserDetailQuery = (
         student_certificates(
           certificates(*)
         ),
-        student_competitions(
-          prize,
-          competitions(*)
-        ),
-        field_training(
+        field_training!left(
           *,
           companies(*),
           jobs(*)
         ),
-        employment_companies(
+        employment_companies!left(
           *,
           companies(*),
           jobs(*)
@@ -49,9 +45,11 @@ export const useUserDetailQuery = (
       `
       )
       .eq('student_id', student_id)
+      .single()
 
     if (error) {
       console.error('Error : ', error)
+      throw new Error(error.message)
     }
 
     return data
@@ -66,30 +64,42 @@ export const useUserDetailQuery = (
           profile_skills(
             skills!fk_profile_skills_skill_id(*)
           ),
-          project_permissions (
-            projects(project_id, project_name)
+          project_contributors (
+            project:projects(project_id, project_name)
+          ),
+          profile_competitions (
+            competition:competitions(*),
+            prize
           )
         ) 
       `
       )
       .eq('student_id', student_id)
+      .eq('profile.is_team', false)
+      .limit(1)
 
     if (error) {
       console.error('Error : ', error)
+      throw new Error(error.message)
     }
 
     return data
   }
 
-  const selectUserDetail = async () => {
+  const selectUserDetail = async (): Promise<UserDetailType> => {
     const userDatas = await selectUserDatas()
     const profileDatas = await selectProfileDatas()
 
-    if (userDatas && profileDatas)
-      return {
-        ...userDatas[0],
-        ...profileDatas[0],
-      }
+    if (!userDatas || !profileDatas) {
+      throw new Error('User data or profile data not found')
+    }
+
+    const { profile } = profileDatas[0] || {}
+
+    return {
+      ...userDatas,
+      profile: profile,
+    } as UserDetailType
   }
 
   return useQuery({

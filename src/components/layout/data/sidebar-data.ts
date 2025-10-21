@@ -1,24 +1,10 @@
 import {
-  IconBarrierBlock,
-  IconBrowserCheck,
-  IconBug, // IconChecklist,
   IconBuildings,
-  IconError404,
-  IconHelp,
   IconLayoutDashboard,
-  IconLock,
-  IconLockAccess, // IconMessages,
-  IconNotification, // IconPackages,
-  IconPalette,
-  IconServerOff,
-  IconSettings,
-  IconTool,
-  IconUserCog,
-  IconUserOff,
   IconUsers,
 } from '@tabler/icons-react'
 import { User } from '@supabase/supabase-js'
-import { AudioWaveform, Command, GalleryVerticalEnd } from 'lucide-react'
+import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
 
 // 사용자 정보를 매개변수로 받는 함수로 변경
