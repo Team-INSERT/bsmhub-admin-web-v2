@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { DateRange } from 'react-day-picker'
 import { formatDate } from '@/utils/formatDate'
 import { getCurrentFieldTraining } from '@/utils/users/getCurrentFieldTraining'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
@@ -294,8 +295,18 @@ export const Employment = ({
                     <dt className='w-24 flex-shrink-0 font-medium'>
                       취업 기간:
                     </dt>
-                    <dd>{formatDate(currentFieldTraining.start_date)}</dd> ~{' '}
-                    <dd>{formatDate(currentFieldTraining.end_date)}</dd>
+                    <div className='flex-col'>
+                      <div className='flex'>
+                        <dd>{formatDate(currentFieldTraining.start_date)}</dd> ~{' '}
+                        <dd>{formatDate(currentFieldTraining.end_date)}</dd>
+                      </div>
+                      <Badge>
+                        {currentFieldTraining.end_date &&
+                        new Date(currentFieldTraining.end_date) > new Date()
+                          ? '진행 중'
+                          : '종료'}
+                      </Badge>
+                    </div>
                   </div>
                   <div className='flex gap-2'>
                     <dt className='w-24 flex-shrink-0 font-medium'>

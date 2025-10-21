@@ -78,7 +78,16 @@ export const useHandleEmploymentMutation = () => {
   const mutation = useMutation({
     mutationFn: handleEmployment,
     onSuccess: (_data, variables) => {
+      // 더 강력한 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ['employment_companies'] })
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === 'user-' ||
+          (typeof query.queryKey[0] === 'string' &&
+            query.queryKey[0].startsWith('user-')),
+      })
+
       toast({
         variant: 'default',
         title: '취업 데이터 처리 성공!',
