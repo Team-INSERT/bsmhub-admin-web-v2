@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { DateRange } from 'react-day-picker'
 import { formatDate } from '@/utils/formatDate'
 import { getCurrentFieldTraining } from '@/utils/users/getCurrentFieldTraining'
+import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
@@ -16,9 +18,15 @@ import { useCompanyListQuery } from '@/features/companies/services/selectCompany
 import { useEditUser } from '../context/edit-context'
 import { useUsers } from '../context/users-context'
 import { UserDetailType, UserEditType } from '../data/schema'
-import { FieldTrainingUpdate } from '../services/field-training/handleFieldTraining'
+import { useHandleEmploymentMutation } from '../services/employment-companies/handleEmployment'
+import {
+  FieldTrainingUpdate,
+  useHandleFieldTrainingMutation,
+} from '../services/field-training/handleFieldTraining'
 import { useJobListQuery } from '../services/field-training/selectJobList'
 import { AddFieldTrainingOption } from './add-field-training-option'
+import FieldTrainingEndDialog from './field-training-end-dialog'
+import StatusBedge from './status-bedge'
 
 type addFieldTrainingType = Pick<
   FieldTrainingUpdate,
@@ -30,12 +38,18 @@ export const FieldTraining = ({
 }: {
   datas: UserDetailType['field_training']
 }) => {
-  const { editingSection, setEditData } = useEditUser()
+  const { editingSection, setEditData, setEditingSection } = useEditUser()
   const { currentRow } = useUsers()
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
 
   const { data: companies = [], refetch: refetchCompanies } =
     useCompanyListQuery()
   const { data: jobs = [], refetch: refetchJobs } = useJobListQuery()
+
+  // Mutation hooks
+  const fieldTrainingMutation = useHandleFieldTrainingMutation()
+  const employmentMutation = useHandleEmploymentMutation()
 
   const currentFieldTraining =
     datas.length > 0 ? getCurrentFieldTraining({ datas }) : null
@@ -49,6 +63,7 @@ export const FieldTraining = ({
   const [add, setAdd] = useState<boolean>(false)
   const [autoEmployment, setAutoEmployment] = useState<boolean>(false)
   const [deleteToggle, setDeleteToggle] = useState<boolean>(false)
+  const [endDialogOpen, setEndDialogOpen] = useState<boolean>(false)
 
   useEffect(() => {
     if (!editingSection) {
@@ -109,8 +124,97 @@ export const FieldTraining = ({
     setEditData,
   ])
 
+  const handleEarlyEnd = async (endDate: string, deleteEmployment: boolean) => {
+    if (!currentFieldTraining || !currentRow) return
+
+    try {
+      // 조기종료 처리를 위한 editData 배열 생성
+      const editDataArray: UserEditType = [
+        {
+          action: 'update',
+          datas: {
+            field_training: {
+              student_id: currentRow.student_id,
+              company_id: currentFieldTraining.company_id,
+              job_id: currentFieldTraining.job_id,
+              start_date: currentFieldTraining.start_date,
+              end_date: endDate,
+            },
+          },
+        },
+      ]
+
+      // 취업 정보 삭제 옵션이 선택된 경우 추가
+      if (deleteEmployment) {
+        editDataArray.push({
+          action: 'delete',
+          datas: {
+            employment_companies: {
+              student_id: currentRow.student_id,
+              company_id: currentFieldTraining.company_id,
+              job_id: currentFieldTraining.job_id,
+              start_date: currentFieldTraining.start_date,
+              end_date: null,
+              created_at: new Date().toISOString(),
+            },
+          },
+        })
+      }
+
+      // 현장실습 데이터 처리
+      const fieldTrainingData = editDataArray.filter(
+        (item) => 'field_training' in item.datas
+      )
+      if (fieldTrainingData.length > 0) {
+        await fieldTrainingMutation.mutateAsync(fieldTrainingData)
+      }
+
+      // 취업 데이터 처리
+      const employmentData = editDataArray.filter(
+        (item) => 'employment_companies' in item.datas
+      )
+      if (employmentData.length > 0) {
+        await employmentMutation.mutateAsync(employmentData)
+      }
+
+      // 편집 상태에서 나가기 (기존 StudentDetail.tsx의 saveEditing 로직과 동일)
+      setEditingSection(null)
+
+      // 직접 쿼리 무효화로 사이드바 새로고침 보장
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['users'] }),
+        currentRow?.student_id &&
+          queryClient.invalidateQueries({
+            queryKey: [`user-${currentRow.student_id}`],
+          }),
+      ])
+
+      toast({
+        variant: 'default',
+        title: '조기종료 처리 완료',
+        description: '현장실습이 성공적으로 조기종료 처리되었습니다.',
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: '조기종료 처리 실패',
+        description:
+          error instanceof Error
+            ? error.message
+            : '알 수 없는 오류가 발생했습니다.',
+      })
+    }
+  }
+
   return (
     <div>
+      {endDialogOpen && (
+        <FieldTrainingEndDialog
+          open={endDialogOpen}
+          onOpenChange={setEndDialogOpen}
+          onConfirm={handleEarlyEnd}
+        />
+      )}
       {editingSection === 'field_training' ? (
         <div className='space-y-4'>
           {/* 현장실습 수정 */}
@@ -185,6 +289,16 @@ export const FieldTraining = ({
                       </SelectContent>
                     </Select>
                   </div>
+                  {currentFieldTraining.end_date &&
+                    new Date(currentFieldTraining.end_date) > new Date() && (
+                      <Button
+                        onClick={() => {
+                          setEndDialogOpen(true)
+                        }}
+                      >
+                        실습 조기종료
+                      </Button>
+                    )}
                   <div className='flex items-center justify-between pt-2'>
                     <div className='flex items-center space-x-2'>
                       <span className='font-medium'>삭제</span>
@@ -446,8 +560,13 @@ export const FieldTraining = ({
                     <dt className='w-24 flex-shrink-0 font-medium'>
                       실습 기간:
                     </dt>
-                    <dd>{formatDate(currentFieldTraining.start_date)}</dd> ~{' '}
-                    <dd>{formatDate(currentFieldTraining.end_date)}</dd>
+                    <div className='flex-col'>
+                      <div className='flex'>
+                        <dd>{formatDate(currentFieldTraining.start_date)}</dd> ~{' '}
+                        <dd>{formatDate(currentFieldTraining.end_date)}</dd>
+                      </div>
+                      {StatusBedge(currentFieldTraining)}
+                    </div>
                   </div>
                   <div className='flex gap-2'>
                     <dt className='w-24 flex-shrink-0 font-medium'>

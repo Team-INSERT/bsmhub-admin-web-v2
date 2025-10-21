@@ -18,6 +18,7 @@ import { useUsers } from '../context/users-context'
 import { UserDetailType } from '../data/schema'
 import { FieldTrainingUpdate } from '../services/field-training/handleFieldTraining'
 import { useJobListQuery } from '../services/field-training/selectJobList'
+import StatusBedge from './status-bedge'
 
 type addFieldTrainingType = Pick<
   FieldTrainingUpdate,
@@ -294,8 +295,13 @@ export const Employment = ({
                     <dt className='w-24 flex-shrink-0 font-medium'>
                       취업 기간:
                     </dt>
-                    <dd>{formatDate(currentFieldTraining.start_date)}</dd> ~{' '}
-                    <dd>{formatDate(currentFieldTraining.end_date)}</dd>
+                    <div className='flex-col'>
+                      <div className='flex'>
+                        <dd>{formatDate(currentFieldTraining.start_date)}</dd> ~{' '}
+                        <dd>{formatDate(currentFieldTraining.end_date)}</dd>
+                      </div>
+                      {StatusBedge(currentFieldTraining)}
+                    </div>
                   </div>
                   <div className='flex gap-2'>
                     <dt className='w-24 flex-shrink-0 font-medium'>

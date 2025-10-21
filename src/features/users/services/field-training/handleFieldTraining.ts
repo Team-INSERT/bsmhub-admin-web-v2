@@ -83,7 +83,16 @@ export const useHandleFieldTrainingMutation = () => {
   const mutation = useMutation({
     mutationFn: handleFieldTraining,
     onSuccess: (_data, variables) => {
+      // 더 강력한 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ['field_training'] })
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === 'user-' ||
+          (typeof query.queryKey[0] === 'string' &&
+            query.queryKey[0].startsWith('user-')),
+      })
+
       toast({
         variant: 'default',
         title: '현장실습 데이터 처리 성공!',
