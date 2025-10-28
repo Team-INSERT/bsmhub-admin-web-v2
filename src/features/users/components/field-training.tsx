@@ -47,7 +47,6 @@ export const FieldTraining = ({
     useCompanyListQuery()
   const { data: jobs = [], refetch: refetchJobs } = useJobListQuery()
 
-  // Mutation hooks
   const fieldTrainingMutation = useHandleFieldTrainingMutation()
   const employmentMutation = useHandleEmploymentMutation()
 
@@ -128,7 +127,6 @@ export const FieldTraining = ({
     if (!currentFieldTraining || !currentRow) return
 
     try {
-      // 조기종료 처리를 위한 editData 배열 생성
       const editDataArray: UserEditType = [
         {
           action: 'update',
@@ -144,7 +142,6 @@ export const FieldTraining = ({
         },
       ]
 
-      // 취업 정보 삭제 옵션이 선택된 경우 추가
       if (deleteEmployment) {
         editDataArray.push({
           action: 'delete',
