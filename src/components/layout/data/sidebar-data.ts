@@ -2,8 +2,8 @@ import {
   IconBuildings,
   IconLayoutDashboard,
   IconUsers,
-  IconBug,
   IconBulb,
+  IconBug,
 } from '@tabler/icons-react'
 import { User } from '@supabase/supabase-js'
 import { Command } from 'lucide-react'
