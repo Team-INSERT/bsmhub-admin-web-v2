@@ -2,6 +2,8 @@ import {
   IconBuildings,
   IconLayoutDashboard,
   IconUsers,
+  IconBug,
+  IconBulb,
 } from '@tabler/icons-react'
 import { User } from '@supabase/supabase-js'
 import { Command } from 'lucide-react'
@@ -72,6 +74,23 @@ export const getSidebarData = (user: User | null): SidebarData => {
             title: '기업 정보',
             url: '/companies',
             icon: IconBuildings,
+          },
+        ],
+      },
+      {
+        title: '피드백',
+        items: [
+          {
+            title: '버그 신고',
+            url: 'https://obtuse-t.atlassian.net/jira/software/form/f2c4b89b-e758-48c8-8507-bb1a3f479b43',
+            icon: IconBug,
+            isExternal: true,
+          },
+          {
+            title: '기능 요청',
+            url: 'https://obtuse-t.atlassian.net/jira/software/form/d34ad520-6025-4d07-8543-85c225b5ac1a',
+            icon: IconBulb,
+            isExternal: true,
           },
         ],
       },
