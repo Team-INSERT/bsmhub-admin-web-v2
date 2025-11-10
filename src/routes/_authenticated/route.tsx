@@ -4,6 +4,7 @@ import { IconAlertTriangle } from '@tabler/icons-react'
 import { AuthSessionMissingError } from '@supabase/supabase-js'
 import { cn } from '@/lib/utils'
 import supabase from '@/utils/supabase/client'
+import { Database } from '@/utils/supabase/database.types'
 import { SearchProvider } from '@/context/search-context'
 import { UserProvider } from '@/context/user-context'
 import { SidebarProvider } from '@/components/ui/sidebar'
@@ -30,7 +31,11 @@ export const Route = createFileRoute('/_authenticated')({
         to: '/403',
       })
     }
-    return { user, isReadonly: adminStatus.isReadonly }
+    return {
+      user,
+      isReadonly: adminStatus.isReadonly,
+      dashboardOnly: adminStatus.dashboardOnly,
+    }
   },
 })
 
@@ -62,7 +67,7 @@ function ReadOnlyBanner() {
 }
 
 function RouteComponent() {
-  const { user, isReadonly } = Route.useRouteContext()
+  const { user, isReadonly, dashboardOnly } = Route.useRouteContext()
   const defaultOpen = Cookies.get('sidebar:state') !== 'false'
 
   return (
@@ -72,7 +77,7 @@ function RouteComponent() {
         <SearchProvider>
           <SidebarProvider defaultOpen={defaultOpen}>
             <SkipToMain />
-            <AppSidebar />
+            <AppSidebar dashboardOnly={dashboardOnly} />
             <div
               id='content'
               className={cn(
@@ -94,23 +99,22 @@ function RouteComponent() {
   )
 }
 async function getAdminStatus(id: string) {
-  const [permission, readonly] = await Promise.all([
-    supabase.from('web_admin_permission').select('auth_id').eq('auth_id', id),
-    supabase.from('web_admin_readonly').select('auth_id').eq('auth_id', id),
-  ])
+  const { data, error } = await supabase
+    .from('web_admin_permission')
+    .select('role')
+    .eq('auth_id', id)
+    .single()
 
-  if (permission.error) {
-    throw permission.error
-  }
-  if (readonly.error) {
-    throw readonly.error
+  if (error || !data) {
+    throw error
   }
 
-  const hasPermission = permission.data && permission.data.length > 0
-  const hasReadonly = readonly.data && readonly.data.length > 0
+  const role =
+    data.role as Database['public']['Enums']['web_admin_permission_enum']
 
   return {
-    canAccess: hasPermission || hasReadonly,
-    isReadonly: !hasPermission && hasReadonly,
+    canAccess: role,
+    isReadonly: ['dashboard_only', 'view_all'].includes(role),
+    dashboardOnly: role === 'dashboard_only',
   }
 }

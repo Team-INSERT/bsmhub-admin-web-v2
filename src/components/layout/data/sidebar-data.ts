@@ -7,8 +7,30 @@ import { User } from '@supabase/supabase-js'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
 
-// 사용자 정보를 매개변수로 받는 함수로 변경
-export const getSidebarData = (user: User | null): SidebarData => {
+export const getSidebarData = ({ user, dashboardOnly }: { user: User | null; dashboardOnly?: boolean }): SidebarData => {
+  
+  const baseDashboardItem = {
+    title: '대시보드',
+    url: '/',
+    icon: IconLayoutDashboard,
+  }
+
+  const studentItem = {
+    title: '학생 정보',
+    url: '/users',
+    icon: IconUsers,
+  }
+
+  const companyItem = {
+    title: '기업 정보',
+    url: '/companies',
+    icon: IconBuildings,
+  }
+
+  const generalItems = dashboardOnly
+    ? [baseDashboardItem]
+    : [baseDashboardItem, studentItem, companyItem]
+
   return {
     user: user
       ? {
@@ -41,39 +63,8 @@ export const getSidebarData = (user: User | null): SidebarData => {
     navGroups: [
       {
         title: 'General',
-        items: [
-          {
-            title: '대시보드',
-            url: '/',
-            icon: IconLayoutDashboard,
-          },
-          // {
-          //   title: 'Tasks',
-          //   url: '/tasks',
-          //   icon: IconChecklist,
-          // },
-          // {
-          //   title: 'Apps',
-          //   url: '/apps',
-          //   icon: IconPackages,
-          // },
-          // {
-          //   title: 'Chats',
-          //   url: '/chats',
-          //   badge: '3',
-          //   icon: IconMessages,
-          // },
-          {
-            title: '학생 정보',
-            url: '/users',
-            icon: IconUsers,
-          },
-          {
-            title: '기업 정보',
-            url: '/companies',
-            icon: IconBuildings,
-          },
-        ],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        items: generalItems as any,
       },
       // {
       //   title: 'Pages',

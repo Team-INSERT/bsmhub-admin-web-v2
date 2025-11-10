@@ -11,8 +11,12 @@ import { NavUser } from '@/components/layout/nav-user'
 import { TeamSwitcher } from '@/components/layout/team-switcher'
 import { getSidebarData } from './data/sidebar-data'
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const sidebarData = getSidebarData(useUser())
+type AppSidebarProps = {
+  dashboardOnly?: boolean
+} & React.ComponentProps<typeof Sidebar>
+
+export function AppSidebar({ dashboardOnly, ...props }: AppSidebarProps) {
+  const sidebarData = getSidebarData({ user: useUser(), dashboardOnly })
   return (
     <Sidebar collapsible='icon' variant='floating' {...props}>
       <SidebarHeader>

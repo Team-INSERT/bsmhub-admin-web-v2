@@ -37,6 +37,7 @@ interface NavGroup {
 
 interface SidebarData {
   user: User
+  dashboardOnly?: boolean
   teams: Team[]
   navGroups: NavGroup[]
 }

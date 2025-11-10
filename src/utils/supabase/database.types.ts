@@ -459,7 +459,7 @@ export type Database = {
         Insert: {
           certificate_id?: number
           certificate_name: string
-          is_software: boolean
+          is_software?: boolean
         }
         Update: {
           certificate_id?: number
@@ -794,14 +794,7 @@ export type Database = {
           "\bimage_url"?: string
           mark_id?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "markdown_picture_mark_id_fkey"
-            columns: ["mark_id"]
-            referencedRelation: "project_markdown"
-            referencedColumns: ["mark_id"]
-          },
-        ]
+        Relationships: []
       }
       middle_schools: {
         Row: {
@@ -901,7 +894,14 @@ export type Database = {
           profile_image?: string
           profile_name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profile_owner_fkey1"
+            columns: ["owner"]
+            referencedRelation: "student"
+            referencedColumns: ["student_id"]
+          },
+        ]
       }
       profile_competitions: {
         Row: {
@@ -1035,12 +1035,6 @@ export type Database = {
             referencedRelation: "profile"
             referencedColumns: ["profile_id"]
           },
-          {
-            foreignKeyName: "profile_skills_skill_id_fkey"
-            columns: ["skill_id"]
-            referencedRelation: "skills"
-            referencedColumns: ["skill_id"]
-          },
         ]
       }
       project_category: {
@@ -1067,7 +1061,7 @@ export type Database = {
         Insert: {
           description?: string | null
           profile_id?: string
-          project_id?: number
+          project_id: number
         }
         Update: {
           description?: string | null
@@ -1083,6 +1077,28 @@ export type Database = {
           },
           {
             foreignKeyName: "project_permissions_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "projects"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
+      project_html_description: {
+        Row: {
+          html_content: string
+          project_id: number
+        }
+        Insert: {
+          html_content: string
+          project_id?: number
+        }
+        Update: {
+          html_content?: string
+          project_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_html_description_project_id_fkey"
             columns: ["project_id"]
             referencedRelation: "projects"
             referencedColumns: ["project_id"]
@@ -1111,28 +1127,56 @@ export type Database = {
           },
         ]
       }
-      project_markdown: {
+      project_link: {
         Row: {
-          mark_desc: string | null
-          mark_id: number
+          alt: string | null
+          link: string
           project_id: number
         }
         Insert: {
-          mark_desc?: string | null
-          mark_id?: number
+          alt?: string | null
+          link: string
           project_id: number
         }
         Update: {
-          mark_desc?: string | null
-          mark_id?: number
+          alt?: string | null
+          link?: string
           project_id?: number
         }
         Relationships: [
           {
-            foreignKeyName: "project_markdown_project_id_fkey"
+            foreignKeyName: "project_link_project_id_fkey"
             columns: ["project_id"]
             referencedRelation: "projects"
             referencedColumns: ["project_id"]
+          },
+        ]
+      }
+      project_skills: {
+        Row: {
+          project_id: number
+          skill_id: number
+        }
+        Insert: {
+          project_id: number
+          skill_id: number
+        }
+        Update: {
+          project_id?: number
+          skill_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_skills_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "projects"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            referencedRelation: "skills"
+            referencedColumns: ["skill_id"]
           },
         ]
       }
@@ -1447,6 +1491,34 @@ export type Database = {
           },
         ]
       }
+      team_member: {
+        Row: {
+          participant_id: string
+          profile_id: string
+        }
+        Insert: {
+          participant_id: string
+          profile_id: string
+        }
+        Update: {
+          participant_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_member_participant_id_fkey"
+            columns: ["participant_id"]
+            referencedRelation: "profile"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "team_member_profile_id_fkey"
+            columns: ["profile_id"]
+            referencedRelation: "profile"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       universities: {
         Row: {
           university_department: string
@@ -1469,29 +1541,17 @@ export type Database = {
         Row: {
           auth_id: string
           created_at: string
+          role: Database["public"]["Enums"]["web_admin_permission_enum"] | null
         }
         Insert: {
           auth_id: string
           created_at?: string
+          role?: Database["public"]["Enums"]["web_admin_permission_enum"] | null
         }
         Update: {
           auth_id?: string
           created_at?: string
-        }
-        Relationships: []
-      }
-      web_admin_readonly: {
-        Row: {
-          auth_id: string
-          created_at: string
-        }
-        Insert: {
-          auth_id: string
-          created_at?: string
-        }
-        Update: {
-          auth_id?: string
-          created_at?: string
+          role?: Database["public"]["Enums"]["web_admin_permission_enum"] | null
         }
         Relationships: []
       }
@@ -1549,12 +1609,6 @@ export type Database = {
             referencedRelation: "profile"
             referencedColumns: ["profile_id"]
           },
-          {
-            foreignKeyName: "profile_skills_skill_id_fkey"
-            columns: ["skill_id"]
-            referencedRelation: "skills"
-            referencedColumns: ["skill_id"]
-          },
         ]
       }
     }
@@ -1603,6 +1657,7 @@ export type Database = {
     Enums: {
       collection_item_type: "collection" | "project"
       visibility: "public" | "partially_public" | "private"
+      web_admin_permission_enum: "admin" | "view_all" | "dashboard_only"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2204,6 +2259,7 @@ export const Constants = {
     Enums: {
       collection_item_type: ["collection", "project"],
       visibility: ["public", "partially_public", "private"],
+      web_admin_permission_enum: ["admin", "view_all", "dashboard_only"],
     },
   },
   storage: {
