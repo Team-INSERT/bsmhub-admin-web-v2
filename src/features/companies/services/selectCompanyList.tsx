@@ -10,10 +10,9 @@ export const selectCompanyList = async (): Promise<CompanySupabase[]> => {
     throw new Error(error.message)
   }
 
-  return data
+  return data.sort((a, b) => a.company_name.localeCompare(b.company_name, 'ko'))
 }
 
-// ✅ TanStack Query를 활용한 커스텀 훅
 export const useCompanyListQuery = () => {
   return useQuery({
     queryKey: ['companies'],
