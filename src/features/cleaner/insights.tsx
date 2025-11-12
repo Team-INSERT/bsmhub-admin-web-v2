@@ -16,7 +16,7 @@ export default function CleanerInsightsPage() {
           <ProfileDropdown />
         </div>
       </Header>
-      <Main className='space-y-6 pb-10'>
+      <Main className='space-y-6 pb-10 pr-4'>
         <section>
           <div className='mb-4'>
             <h1 className='text-2xl font-semibold tracking-tight'>

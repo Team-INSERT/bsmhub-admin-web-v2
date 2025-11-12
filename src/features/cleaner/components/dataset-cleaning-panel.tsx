@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   CLEANER_DATASETS,
@@ -22,20 +21,7 @@ import {
   CleanerGenerationValue,
   DEFAULT_GENERATION,
 } from '../constants'
-import {
-  CleanResponse,
-  CleanResult,
-  requestDatasetCleaning,
-} from '../api'
-
-const datasetLabelMap = CLEANER_DATASETS.reduce(
-  (acc, dataset) => {
-    acc[dataset.field] = dataset.label
-    acc[dataset.field.replace('_file', '')] = dataset.label
-    return acc
-  },
-  {} as Record<string, string>
-)
+import { requestDatasetCleaning } from '../api'
 
 const createEmptyDatasetMap = () =>
   CLEANER_DATASETS.reduce(
@@ -61,7 +47,6 @@ export function DatasetCleaningPanel() {
   const [filesByGeneration, setFilesByGeneration] = useState<
     Record<CleanerGenerationValue, Record<CleanerDatasetField, File[]>>
   >(createInitialGenerationState)
-  const [latestResult, setLatestResult] = useState<CleanResponse | null>(null)
 
   const currentFiles =
     filesByGeneration[activeGeneration] ?? createEmptyDatasetMap()
@@ -78,7 +63,6 @@ export function DatasetCleaningPanel() {
   const mutation = useMutation({
     mutationFn: requestDatasetCleaning,
     onSuccess: (data) => {
-      setLatestResult(data)
       toast({
         title: '클리닝 요청이 접수되었습니다.',
         description: `요청 ID ${data.request_id} / 기수 ${data.generation}`,
@@ -172,9 +156,8 @@ export function DatasetCleaningPanel() {
   const isSubmitting = mutation.isPending
 
   return (
-    <div className='grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]'>
-      <Card className='h-full'>
-        <CardHeader className='space-y-3'>
+    <Card>
+      <CardHeader className='space-y-3'>
           <div className='flex items-center justify-between gap-3'>
             <div>
               <CardTitle>SANDEUL Cleaner 업로드</CardTitle>
@@ -194,8 +177,8 @@ export function DatasetCleaningPanel() {
             </AlertDescription>
           </Alert>
         </CardHeader>
-        <CardContent>
-          <form className='space-y-6' onSubmit={handleSubmit}>
+      <CardContent>
+        <form className='space-y-6' onSubmit={handleSubmit}>
             <div className='space-y-4'>
               <div className='rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground'>
                 서버 기본 URL은{' '}
@@ -291,12 +274,6 @@ export function DatasetCleaningPanel() {
           </form>
         </CardContent>
       </Card>
-
-      <CleaningResultsSummary
-        latestResult={latestResult}
-        isLoading={isSubmitting}
-      />
-    </div>
   )
 }
 
@@ -423,103 +400,6 @@ function KanbanColumn({
           </ul>
         )}
       </ScrollArea>
-    </div>
-  )
-}
-
-function CleaningResultsSummary({
-  latestResult,
-  isLoading,
-}: {
-  latestResult: CleanResponse | null
-  isLoading: boolean
-}) {
-  const totalRows = latestResult?.results?.reduce(
-    (acc, curr) => acc + (curr.sqlite_rows || 0),
-    0
-  )
-
-  return (
-    <Card className='h-full'>
-      <CardHeader>
-        <CardTitle>최근 처리 결과</CardTitle>
-        <CardDescription>
-          성공 여부와 SQLite 적재 현황을 실시간으로 확인하세요.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className='space-y-4'>
-        {!latestResult ? (
-          <div className='rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground'>
-            아직 처리된 내역이 없습니다. 데이터를 업로드하면 요약이 제공됩니다.
-          </div>
-        ) : (
-          <>
-            <div className='grid gap-3 rounded-lg border p-4 text-sm'>
-              <div className='flex items-center justify-between'>
-                <span className='text-muted-foreground'>요청 ID</span>
-                <span className='font-mono text-xs'>
-                  {latestResult.request_id.slice(0, 18)}...
-                </span>
-              </div>
-              <div className='flex items-center justify-between'>
-                <span className='text-muted-foreground'>기수</span>
-                <Badge>{latestResult.generation}</Badge>
-              </div>
-              <div className='flex items-center justify-between'>
-                <span className='text-muted-foreground'>총 적재 행 수</span>
-                <span className='font-semibold'>{totalRows || 0} rows</span>
-              </div>
-            </div>
-            <Separator />
-            <div className='space-y-3'>
-              {latestResult.results.map((result) => (
-                <ResultRow key={result.dataset} result={result} />
-              ))}
-            </div>
-          </>
-        )}
-        {isLoading && (
-          <div className='flex items-center gap-2 rounded-lg border border-dashed p-3 text-sm text-muted-foreground'>
-            <IconLoader2 className='size-4 animate-spin' />
-            서버로 업로드 중입니다. 잠시만 기다려주세요.
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-function ResultRow({ result }: { result: CleanResult }) {
-  const statusVariant =
-    result.status === 'ok' ? 'secondary' : ('destructive' as const)
-  const message =
-    result.message ||
-    result.detail ||
-    (result.status === 'ok'
-      ? '정상적으로 처리되었습니다.'
-      : '처리 중 오류가 발생했습니다.')
-  return (
-    <div className='rounded-lg border bg-card p-3 text-sm'>
-      <div className='flex flex-wrap items-center justify-between gap-2'>
-        <div>
-          <p className='font-medium'>
-            {datasetLabelMap[result.dataset] || result.dataset}
-          </p>
-          <p className='text-xs text-muted-foreground'>{message}</p>
-        </div>
-        <Badge variant={statusVariant}>{result.status.toUpperCase()}</Badge>
-      </div>
-      <div className='mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground'>
-        {typeof result.sqlite_rows === 'number' && (
-          <span>SQLite 행: {result.sqlite_rows.toLocaleString()}</span>
-        )}
-        {result.sqlite_tables?.length ? (
-          <span>테이블: {result.sqlite_tables.join(', ')}</span>
-        ) : null}
-        {result.processed_sheets?.length ? (
-          <span>시트: {result.processed_sheets.join(', ')}</span>
-        ) : null}
-      </div>
     </div>
   )
 }

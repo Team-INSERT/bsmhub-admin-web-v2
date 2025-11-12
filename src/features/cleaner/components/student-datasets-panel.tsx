@@ -1,8 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { IconLoader2, IconRefresh, IconUsersGroup } from '@tabler/icons-react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import {
   Card,
   CardContent,
@@ -29,7 +38,11 @@ import {
   type CleanerGenerationTabValue,
   type CleanerGenerationValue,
 } from '../constants'
-import { fetchStudents, type StudentRecord } from '../api'
+import {
+  fetchEncryptedStudents,
+  fetchStudents,
+  type StudentRecord,
+} from '../api'
 
 const datasetLabelMap = CLEANER_DATASETS.reduce(
   (acc, dataset) => {
@@ -39,6 +52,81 @@ const datasetLabelMap = CLEANER_DATASETS.reduce(
   },
   {} as Record<string, string>,
 )
+
+const subtleCrypto = getSubtleCrypto()
+
+function getSubtleCrypto(): SubtleCrypto | null {
+  if (typeof window !== 'undefined' && window.crypto?.subtle) {
+    return window.crypto.subtle
+  }
+  if (typeof globalThis !== 'undefined') {
+    const crypto = (globalThis as typeof globalThis & { crypto?: Crypto }).crypto
+    if (crypto?.subtle) return crypto.subtle
+  }
+  return null
+}
+
+function cleanPemInput(input: string) {
+  if (!input) return ''
+  return input
+    .replace(/-----BEGIN (RSA )?PRIVATE KEY-----/gi, '')
+    .replace(/-----END (RSA )?PRIVATE KEY-----/gi, '')
+    .replace(/\s+/g, '')
+}
+
+function base64ToArrayBuffer(base64: string) {
+  if (typeof window === 'undefined') {
+    const buffer = Buffer.from(base64, 'base64')
+    return buffer.buffer.slice(
+      buffer.byteOffset,
+      buffer.byteOffset + buffer.byteLength,
+    )
+  }
+  const binaryString = window.atob(base64)
+  const len = binaryString.length
+  const bytes = new Uint8Array(len)
+  for (let i = 0; i < len; i += 1) {
+    bytes[i] = binaryString.charCodeAt(i)
+  }
+  return bytes.buffer
+}
+
+async function importPrivateKey(pem: string) {
+  if (!subtleCrypto) return null
+  const cleaned = cleanPemInput(pem)
+  const keyData = base64ToArrayBuffer(cleaned)
+  try {
+    return await subtleCrypto.importKey(
+      'pkcs8',
+      keyData,
+      {
+        name: 'RSA-OAEP',
+        hash: 'SHA-256',
+      },
+      false,
+      ['decrypt'],
+    )
+  } catch {
+    return null
+  }
+}
+
+async function decryptPayloadRSA(payload: string, key: CryptoKey) {
+  if (!subtleCrypto) return ''
+  try {
+    const cipherBuffer = base64ToArrayBuffer(payload)
+    const decrypted = await subtleCrypto.decrypt(
+      {
+        name: 'RSA-OAEP',
+      },
+      key,
+      cipherBuffer,
+    )
+    return new TextDecoder().decode(decrypted)
+  } catch {
+    return ''
+  }
+}
 
 const generationTabs: Array<{
   value: CleanerGenerationTabValue
@@ -53,10 +141,34 @@ const generationTabs: Array<{
   })),
 ]
 
+function extractDecryptedName(text: string) {
+  if (!text) return ''
+  try {
+    const parsed = JSON.parse(text)
+    if (parsed && typeof parsed.name === 'string') {
+      return parsed.name
+    }
+  } catch {
+    // fallback to regex-based extraction
+  }
+  const match = text.match(/"name"\s*:\s*"([^"]*)"/)
+  if (match?.[1]) {
+    return match[1].replace(/\\u([\dA-Fa-f]{4})/g, (_, code) =>
+      String.fromCharCode(parseInt(code, 16)),
+    )
+  }
+  return ''
+}
+
 export function StudentDatasetsPanel() {
   const [activeTab, setActiveTab] =
     useState<CleanerGenerationTabValue>(ALL_GENERATIONS_TAB)
   const [condensedView, setCondensedView] = useState(true)
+  const [encryptionKey, setEncryptionKey] = useState('')
+  const [decryptedMap, setDecryptedMap] = useState<Record<string, string>>({})
+  const [decryptDialogOpen, setDecryptDialogOpen] = useState(false)
+  const [showDecryptedColumn, setShowDecryptedColumn] = useState(true)
+  const [showHashColumn, setShowHashColumn] = useState(false)
 
   const {
     data,
@@ -74,14 +186,50 @@ export function StudentDatasetsPanel() {
     staleTime: 1000 * 60 * 2,
   })
 
+  const decryptMutation = useMutation({
+    mutationFn: async (hashes: string[]) => {
+      if (!hashes.length || !encryptionKey.trim()) return {}
+      const uniqueHashes = Array.from(new Set(hashes))
+      const privateKey = await importPrivateKey(encryptionKey.trim())
+      if (!privateKey) {
+        throw new Error('RSA 개인 키를 불러올 수 없습니다.')
+      }
+      const response = await fetchEncryptedStudents(uniqueHashes)
+      const entries = await Promise.all(
+        response.items.map(async (item) => {
+          const decrypted = await decryptPayloadRSA(
+            item.encrypted_payload,
+            privateKey,
+          )
+          const name = extractDecryptedName(decrypted)
+          return [item.student_hash, name || '복호화 실패'] as const
+        }),
+      )
+      return Object.fromEntries(entries)
+    },
+    onSuccess: (map) => {
+      setDecryptedMap(map)
+      setShowDecryptedColumn(true)
+      setDecryptDialogOpen(false)
+    },
+    onError: () => {
+      setDecryptedMap({})
+    },
+  })
+
   const students = data?.students ?? []
   const totalDatasets = useMemo(
     () => students.reduce((acc, student) => acc + student.datasets.length, 0),
     [students],
   )
 
+  useEffect(() => {
+    setDecryptedMap({})
+  }, [activeTab, students.length])
+
   return (
-    <Card>
+    <>
+      <Card>
       <CardHeader>
         <div className='flex flex-wrap items-center justify-between gap-4'>
           <div>
@@ -90,7 +238,36 @@ export function StudentDatasetsPanel() {
               `/students` API에서 조회한 정제 데이터를 기수별로 빠르게 확인하세요.
             </CardDescription>
           </div>
-          <div className='flex items-center gap-4'>
+          <div className='flex flex-1 flex-wrap items-center justify-end gap-3'>
+            <Button
+              type='button'
+              variant='secondary'
+              size='sm'
+              onClick={() => setDecryptDialogOpen(true)}
+            >
+              복호화 설정
+            </Button>
+            <label className='flex items-center gap-2 text-sm text-muted-foreground'>
+              <Checkbox
+                id='show-decrypted'
+                checked={showDecryptedColumn}
+                onCheckedChange={(checked) =>
+                  setShowDecryptedColumn(Boolean(checked))
+                }
+                disabled={!Object.keys(decryptedMap).length}
+              />
+              복호화 결과 표시
+            </label>
+            <label className='flex items-center gap-2 text-sm text-muted-foreground'>
+              <Checkbox
+                id='show-hash'
+                checked={showHashColumn}
+                onCheckedChange={(checked) =>
+                  setShowHashColumn(Boolean(checked))
+                }
+              />
+              student_hash 표시
+            </label>
             <label className='flex items-center gap-2 text-sm text-muted-foreground'>
               <Checkbox
                 id='condensed-view'
@@ -163,12 +340,70 @@ export function StudentDatasetsPanel() {
                 students={students}
                 isLoading={isLoading}
                 condensedView={condensedView}
+                decryptedMap={decryptedMap}
+                showHashColumn={showHashColumn}
+                showDecryptedColumn={showDecryptedColumn}
               />
             </TabsContent>
           ))}
         </Tabs>
       </CardContent>
     </Card>
+    <Dialog open={decryptDialogOpen} onOpenChange={setDecryptDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>복호화 키 입력</DialogTitle>
+          <DialogDescription>
+            RSA 4096 / OAEP(SHA-256) 개인 키를 입력한 뒤 복호화를 실행하세요. 키는
+            브라우저 메모리에서만 사용됩니다.
+          </DialogDescription>
+        </DialogHeader>
+        <div className='space-y-4 py-2'>
+          <Input
+            placeholder='-----BEGIN PRIVATE KEY----- ...'
+            value={encryptionKey}
+            onChange={(event) => setEncryptionKey(event.target.value)}
+            className='font-mono'
+          />
+          <p className='text-xs text-muted-foreground'>
+            현재 학생 수: {students.length.toLocaleString()}명
+          </p>
+        </div>
+        <DialogFooter className='flex flex-col gap-2 sm:flex-row sm:justify-end'>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={() => setDecryptDialogOpen(false)}
+          >
+            취소
+          </Button>
+          <Button
+            type='button'
+            onClick={() =>
+              decryptMutation.mutate(students.map((s) => s.student_hash))
+            }
+            disabled={
+              !encryptionKey.trim() ||
+              decryptMutation.isPending ||
+              !students.length ||
+              !subtleCrypto
+            }
+          >
+            {decryptMutation.isPending ? (
+              <IconLoader2 className='mr-2 size-4 animate-spin' />
+            ) : null}
+            복호화 실행
+          </Button>
+        </DialogFooter>
+        {!subtleCrypto && (
+          <p className='text-xs text-destructive'>
+            현재 환경에서는 Web Crypto API를 사용할 수 없어 복호화를 실행할 수
+            없습니다.
+          </p>
+        )}
+      </DialogContent>
+    </Dialog>
+    </>
   )
 }
 
@@ -210,10 +445,16 @@ function StudentTable({
   students,
   isLoading,
   condensedView,
+  decryptedMap,
+  showHashColumn,
+  showDecryptedColumn,
 }: {
   students: StudentRecord[]
   isLoading: boolean
   condensedView: boolean
+  decryptedMap: Record<string, string>
+  showHashColumn: boolean
+  showDecryptedColumn: boolean
 }) {
   if (isLoading) {
     return (
@@ -286,14 +527,23 @@ function StudentTable({
   const renderedStudent = new Set<string>()
 
   const showDetail = !condensedView
+  const canShowDecryptedColumn =
+    showDecryptedColumn && Object.keys(decryptedMap).length > 0
+  const canShowHashColumn = showHashColumn
 
   return (
     <ScrollArea className='h-[360px] rounded-xl border'>
       <Table>
         <TableHeader className='bg-muted/30'>
           <TableRow>
-            <TableHead className='w-[160px]'>학생 번호</TableHead>
+            <TableHead className='w-[120px]'>학생 번호</TableHead>
             <TableHead className='w-[80px]'>기수</TableHead>
+            {canShowHashColumn && (
+              <TableHead className='w-[200px]'>student_hash</TableHead>
+            )}
+            {canShowDecryptedColumn && (
+              <TableHead className='w-[200px]'>복호화 결과</TableHead>
+            )}
             <TableHead className='w-[140px]'>데이터셋</TableHead>
             <TableHead className='w-[100px] text-center'>행 수</TableHead>
             {showDetail && <TableHead>데이터 내용</TableHead>}
@@ -311,15 +561,29 @@ function StudentTable({
             return (
               <TableRow key={`${studentHash}-${entry.datasetLabel}-${index}`}>
                 {showStudentCell && (
-                  <>
-                    <TableCell rowSpan={studentRowSpans.get(studentHash)}>
-                      <code className='rounded bg-muted px-2 py-1 text-xs'>
-                        {studentIndexMap.get(studentHash)}
-                      </code>
-                    </TableCell>
-                    <TableCell rowSpan={studentRowSpans.get(studentHash)}>
-                      {entry.student.generation}
-                    </TableCell>
+              <>
+                <TableCell rowSpan={studentRowSpans.get(studentHash)}>
+                  <code className='rounded bg-muted px-2 py-1 text-xs'>
+                    {studentIndexMap.get(studentHash)}
+                  </code>
+                </TableCell>
+                <TableCell rowSpan={studentRowSpans.get(studentHash)}>
+                  {entry.student.generation}
+                </TableCell>
+                {canShowHashColumn && (
+                  <TableCell rowSpan={studentRowSpans.get(studentHash)}>
+                    <code className='rounded bg-muted px-2 py-1 text-[11px]'>
+                      {studentHash}
+                    </code>
+                  </TableCell>
+                )}
+                {canShowDecryptedColumn && (
+                  <TableCell rowSpan={studentRowSpans.get(studentHash)}>
+                    <span className='text-xs text-muted-foreground'>
+                      {decryptedMap[studentHash] || '-'}
+                    </span>
+                      </TableCell>
+                    )}
                   </>
                 )}
                 <TableCell className='font-semibold'>

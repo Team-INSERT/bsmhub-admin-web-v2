@@ -163,4 +163,24 @@ export async function fetchStudents(generation?: number) {
   return cleanerFetch<StudentsResponse>(path)
 }
 
+export type EncryptedStudentPayload = {
+  student_hash: string
+  encrypted_payload: string
+}
+
+export type StudentsEncryptedResponse = {
+  count: number
+  items: EncryptedStudentPayload[]
+}
+
+export async function fetchEncryptedStudents(studentHashes: string[]) {
+  return cleanerFetch<StudentsEncryptedResponse>('/students/encrypted', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ student_hashes: studentHashes }),
+  })
+}
+
 export { CLEANER_API_BASE }

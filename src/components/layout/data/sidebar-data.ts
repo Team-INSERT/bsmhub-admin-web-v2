@@ -1,8 +1,9 @@
 import {
   IconBuildings,
   IconChartHistogram,
+  IconCloudUpload,
   IconLayoutDashboard,
-  IconSparkles,
+  IconTableShortcut,
   IconUsers,
 } from '@tabler/icons-react'
 import { User } from '@supabase/supabase-js'
@@ -23,10 +24,16 @@ export const getSidebarData = ({ user, dashboardOnly }: { user: User | null; das
     icon: IconUsers,
   }
 
-  const cleanerItem = {
-    title: 'SANDEUL Cleaner',
+  const cleanerUploadItem = {
+    title: '데이터 업로드',
+    url: '/cleaner-upload',
+    icon: IconCloudUpload,
+  }
+
+  const cleanerDataItem = {
+    title: '학생 데이터',
     url: '/cleaner',
-    icon: IconSparkles,
+    icon: IconTableShortcut,
   }
 
   const cleanerInsightsItem = {
@@ -45,7 +52,8 @@ export const getSidebarData = ({ user, dashboardOnly }: { user: User | null; das
     ? [baseDashboardItem]
     : [
         baseDashboardItem,
-        cleanerItem,
+        cleanerUploadItem,
+        cleanerDataItem,
         cleanerInsightsItem,
         studentItem,
         companyItem,
