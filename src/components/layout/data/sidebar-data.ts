@@ -1,6 +1,8 @@
 import {
   IconBuildings,
+  IconChartHistogram,
   IconLayoutDashboard,
+  IconSparkles,
   IconUsers,
 } from '@tabler/icons-react'
 import { User } from '@supabase/supabase-js'
@@ -21,6 +23,18 @@ export const getSidebarData = ({ user, dashboardOnly }: { user: User | null; das
     icon: IconUsers,
   }
 
+  const cleanerItem = {
+    title: 'SANDEUL Cleaner',
+    url: '/cleaner',
+    icon: IconSparkles,
+  }
+
+  const cleanerInsightsItem = {
+    title: '모델 인사이트',
+    url: '/cleaner-insights',
+    icon: IconChartHistogram,
+  }
+
   const companyItem = {
     title: '기업 정보',
     url: '/companies',
@@ -29,7 +43,13 @@ export const getSidebarData = ({ user, dashboardOnly }: { user: User | null; das
 
   const generalItems = dashboardOnly
     ? [baseDashboardItem]
-    : [baseDashboardItem, studentItem, companyItem]
+    : [
+        baseDashboardItem,
+        cleanerItem,
+        cleanerInsightsItem,
+        studentItem,
+        companyItem,
+      ]
 
   return {
     user: user
