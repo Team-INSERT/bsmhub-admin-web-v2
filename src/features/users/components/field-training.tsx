@@ -47,7 +47,6 @@ export const FieldTraining = ({
     useCompanyListQuery()
   const { data: jobs = [], refetch: refetchJobs } = useJobListQuery()
 
-  // Mutation hooks
   const fieldTrainingMutation = useHandleFieldTrainingMutation()
   const employmentMutation = useHandleEmploymentMutation()
 
@@ -128,7 +127,6 @@ export const FieldTraining = ({
     if (!currentFieldTraining || !currentRow) return
 
     try {
-      // 조기종료 처리를 위한 editData 배열 생성
       const editDataArray: UserEditType = [
         {
           action: 'update',
@@ -144,7 +142,6 @@ export const FieldTraining = ({
         },
       ]
 
-      // 취업 정보 삭제 옵션이 선택된 경우 추가
       if (deleteEmployment) {
         editDataArray.push({
           action: 'delete',
@@ -224,12 +221,17 @@ export const FieldTraining = ({
                 <div className='grid grid-cols-1 gap-3'>
                   <div className='space-y-2'>
                     <span className='font-medium'>실습 기간</span>
-                    <div className='flex justify-center'>
+                    <div className='overflow-x-auto pb-2 sm:overflow-visible sm:pb-0'>
                       <Calendar
                         mode='range'
                         selected={updateDate}
-                        onSelect={setUpdateDate}
-                        className='rounded-lg border border-border p-2'
+                        onSelect={(value: DateRange | undefined) =>
+                          setUpdateDate(value)
+                        }
+                        showOutsideDays={true}
+                        className='w-full max-w-full rounded-md border'
+                        weekStartsOn={0}
+                        fixedWeeks
                       />
                     </div>
                   </div>
@@ -345,7 +347,7 @@ export const FieldTraining = ({
                   <Calendar
                     mode='range'
                     selected={addDate}
-                    onSelect={(range) => {
+                    onSelect={(range: DateRange | undefined) => {
                       setAddDate(range)
                       const formatDate = (date: Date) => {
                         const year = date.getFullYear()
@@ -362,7 +364,7 @@ export const FieldTraining = ({
                         end_date: range?.to ? formatDate(range.to) : '',
                       }))
                     }}
-                    className='rounded-lg border border-border p-2'
+                    className='w-full max-w-full rounded-lg border border-border p-2'
                   />
                 </div>
               </div>
@@ -387,9 +389,7 @@ export const FieldTraining = ({
                     ))}
                     <AddFieldTrainingOption
                       type='job'
-                      onClick={() => {
-                        // 여기에 직무 추가 로직 구현 예정
-                      }}
+                      onClick={() => {}}
                       onSuccess={() => {
                         refetchJobs()
                       }}
@@ -421,9 +421,7 @@ export const FieldTraining = ({
                     ))}
                     <AddFieldTrainingOption
                       type='company'
-                      onClick={() => {
-                        // 여기에 회사 추가 로직 구현 예정
-                      }}
+                      onClick={() => {}}
                       onSuccess={() => {
                         refetchCompanies()
                       }}
@@ -530,6 +528,7 @@ export const FieldTraining = ({
                               student_id: currentRow.student_id,
                               company_id: addFieldTraining.company_id,
                               job_id: addFieldTraining.job_id,
+
                               start_date: formatDate(employmentStartDate),
                               end_date: null, // 취업 종료일은 null로 설정
                               created_at: formatDateTime(new Date()),
@@ -556,7 +555,7 @@ export const FieldTraining = ({
             <div className='space-y-4'>
               <div className='rounded-md border p-3'>
                 <dl className='space-y-2'>
-                  <div className='flex gap-2'>
+                  <div className='flex flex-col gap-1 sm:flex-row sm:gap-2'>
                     <dt className='w-24 flex-shrink-0 font-medium'>
                       실습 기간:
                     </dt>
@@ -568,13 +567,13 @@ export const FieldTraining = ({
                       {StatusBedge(currentFieldTraining)}
                     </div>
                   </div>
-                  <div className='flex gap-2'>
+                  <div className='flex flex-col gap-1 sm:flex-row sm:gap-2'>
                     <dt className='w-24 flex-shrink-0 font-medium'>
                       실습 직무:
                     </dt>
                     <dd>{currentFieldTraining.jobs.job_name ?? '-'}</dd>
                   </div>
-                  <div className='flex gap-2'>
+                  <div className='flex flex-col gap-1 sm:flex-row sm:gap-2'>
                     <dt className='w-24 flex-shrink-0 font-medium'>회사명:</dt>
                     <dd>
                       {currentFieldTraining.companies.company_name ?? '-'}
