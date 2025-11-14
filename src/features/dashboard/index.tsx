@@ -7,7 +7,6 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { Skeleton } from '@/components/ui/skeleton'
 
 export default function Dashboard() {
   const { theme } = useTheme()
@@ -20,7 +19,6 @@ export default function Dashboard() {
   }`
   const objectRef = useRef<HTMLObjectElement>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
 
   const handleFullscreen = () => {
     const el = objectRef.current
@@ -64,19 +62,12 @@ export default function Dashboard() {
       {/* ===== Main ===== */}
       <Main fixed>
         <div className='relative h-full w-full' ref={objectRef}>
-          {isLoading && (
-            <div className='h-full min-h-[600px] w-full space-y-4 rounded-lg p-4'>
-              <Skeleton className='h-12 w-full' />
-              <Skeleton className='h-full w-full' />
-            </div>
-          )}
           <object
             key={theme}
             type='text/html'
             data-testid='grafana-iframe'
             data={grafanaSrc}
-            onLoad={() => setIsLoading(false)}
-            className={`h-full min-h-[600px] w-full rounded-lg bg-background ${isLoading ? 'hidden' : ''}`}
+            className='h-full min-h-[600px] w-full rounded-lg bg-background'
           ></object>
           <Button
             type='button'
