@@ -62,10 +62,17 @@ export function DatasetCleaningPanel() {
 
   const mutation = useMutation({
     mutationFn: requestDatasetCleaning,
+    onMutate: () => {
+      // 업로드 시작 시 진행 중 토스트 표시
+      toast({
+        title: '데이터 업로드 중입니다...',
+        description: '데이터를 처리하는 중이니 잠시만 기다려주세요.',
+      })
+    },
     onSuccess: (data) => {
       toast({
-        title: '클리닝 요청이 접수되었습니다.',
-        description: `요청 ID ${data.request_id} / 기수 ${data.generation}`,
+        title: '클리닝 요청이 성공적으로 처리되었습니다!',
+        description: `요청 ID: ${data.request_id} | 기수: ${data.generation}`,
       })
       setFilesByGeneration((prev) => ({
         ...prev,
