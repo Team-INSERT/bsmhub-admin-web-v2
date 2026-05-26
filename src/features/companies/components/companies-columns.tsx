@@ -4,8 +4,7 @@ import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import LongText from '@/components/long-text'
 // import { callTypes, userTypes } from '../data/data'
-import { Company } from '../data/schema'
-import { companyFieldMetadata } from '../data/schema'
+import { CompanySupabase, companyFieldMetadata } from '../data/schema'
 import { DataTableColumnHeader } from './data-table-column-header'
 import { DataTableRowActions } from './data-table-row-actions'
 
@@ -20,7 +19,7 @@ const COMPANY_REPRESENTATIVE_FIELD_ATTRIBUTE = {
   enableHiding: false,
 }
 
-export const columns: ColumnDef<Company>[] = [
+export const columns: ColumnDef<CompanySupabase>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -53,10 +52,10 @@ export const columns: ColumnDef<Company>[] = [
   },
   ...Object.entries(companyFieldMetadata).map(([name, metadata]) => ({
     accessorKey: name,
-    header: ({ column }: { column: Column<Company> }) => (
+    header: ({ column }: { column: Column<CompanySupabase> }) => (
       <DataTableColumnHeader column={column} title={metadata.label} />
     ),
-    cell: ({ row }: { row: Row<Company> }) => {
+    cell: ({ row }: { row: Row<CompanySupabase> }) => {
       const value = row.getValue(name)
       return <LongText className='max-w-36'>{String(value)}</LongText>
     },

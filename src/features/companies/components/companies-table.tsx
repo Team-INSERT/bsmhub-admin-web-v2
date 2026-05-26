@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Company } from '../data/schema'
+import { CompanySupabase } from '../data/schema'
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
 
@@ -34,8 +34,8 @@ declare module '@tanstack/react-table' {
 }
 
 interface DataTableProps {
-  columns: ColumnDef<Company>[]
-  data: Company[]
+  columns: ColumnDef<CompanySupabase>[]
+  data: CompanySupabase[]
 }
 
 export function CompaniesTable({ columns, data }: DataTableProps) {

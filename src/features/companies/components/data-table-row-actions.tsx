@@ -11,10 +11,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useCompanies } from '../context/companies-context'
-import { Company } from '../data/schema'
+import { CompanySupabase } from '../data/schema'
 
 interface DataTableRowActionsProps {
-  row: Row<Company>
+  row: Row<CompanySupabase>
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {

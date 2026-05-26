@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import useDialogState from '@/hooks/use-dialog-state'
-import { Company } from '../data/schema'
+import { CompanySupabase } from '../data/schema'
 
 type CompaniesDialogType = 'invite' | 'add' | 'edit' | 'delete'
 
 interface CompaniesContextType {
   open: CompaniesDialogType | null
   setOpen: (str: CompaniesDialogType | null) => void
-  currentRow: Company | null
-  setCurrentRow: React.Dispatch<React.SetStateAction<Company | null>>
+  currentRow: CompanySupabase | null
+  setCurrentRow: React.Dispatch<React.SetStateAction<CompanySupabase | null>>
 }
 
 const CompaniesContext = React.createContext<CompaniesContextType | null>(null)
@@ -19,7 +19,7 @@ interface Props {
 
 export default function CompaniesProvider({ children }: Props) {
   const [open, setOpen] = useDialogState<CompaniesDialogType>(null)
-  const [currentRow, setCurrentRow] = useState<Company | null>(null)
+  const [currentRow, setCurrentRow] = useState<CompanySupabase | null>(null)
 
   return (
     <CompaniesContext value={{ open, setOpen, currentRow, setCurrentRow }}>
