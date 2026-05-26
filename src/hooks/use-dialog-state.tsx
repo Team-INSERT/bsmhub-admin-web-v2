@@ -7,7 +7,7 @@ import { Dispatch, SetStateAction, useState } from 'react'
  * @example const [open, setOpen] = useDialogState<"approve" | "reject">()
  */
 export default function useDialogState<T extends string | boolean>(
-  initialState: T | null = null,
+  initialState: T | null = null
 ): [T | null, (str: T | null) => void, Dispatch<SetStateAction<T | null>>] {
   const [open, _setOpen] = useState<T | null>(initialState)
 

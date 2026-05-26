@@ -9,7 +9,7 @@ const SectionHeader = ({ title }: { title: string }) => (
   <div className='flex flex-col gap-[10px]'>
     <div className='flex items-center gap-[3px]'>
       <div className='h-[7.7px] w-[7.6px] shrink-0 rounded-[1px] bg-[#0c89cd]' />
-      <span className='text-[13.4px] font-bold leading-[16.7px] text-[#0c89cd] whitespace-nowrap'>
+      <span className='whitespace-nowrap text-[13.4px] font-bold leading-[16.7px] text-[#0c89cd]'>
         {title}
       </span>
     </div>
@@ -31,23 +31,25 @@ export const PortfolioPanel = ({ studentId }: PortfolioPanelProps) => {
   if (!portfolio) return null
 
   return (
-    <div className='flex flex-col gap-6 p-4 w-full'>
+    <div className='flex w-full flex-col gap-6 p-4'>
       {/* 프로필 헤더 */}
       <div className='flex flex-col gap-5'>
-        <div className='flex gap-5 items-center'>
+        <div className='flex items-center gap-5'>
           {/* 프로필 이미지 자리 */}
           <div className='h-[140px] w-[110px] shrink-0 rounded bg-muted' />
 
-          <div className='flex flex-col justify-between h-[140px] flex-1'>
+          <div className='flex h-[140px] flex-1 flex-col justify-between'>
             <div className='flex flex-col gap-1.5'>
               <p className='text-xl font-bold text-foreground'>
                 {portfolio.name}
               </p>
               {portfolio.email && (
-                <p className='text-sm text-muted-foreground'>{portfolio.email}</p>
+                <p className='text-sm text-muted-foreground'>
+                  {portfolio.email}
+                </p>
               )}
               {portfolio.description && (
-                <p className='text-xs leading-5 text-[#0c89cd] mt-0.5'>
+                <p className='mt-0.5 text-xs leading-5 text-[#0c89cd]'>
                   {portfolio.description}
                 </p>
               )}
@@ -57,7 +59,7 @@ export const PortfolioPanel = ({ studentId }: PortfolioPanelProps) => {
               <div className='flex flex-col gap-1'>
                 <div className='flex items-center gap-[3px]'>
                   <div className='h-[7.7px] w-[7.6px] shrink-0 rounded-[1px] bg-[#0c89cd]' />
-                  <span className='text-[13.4px] font-bold leading-[16.7px] text-[#0c89cd] whitespace-nowrap'>
+                  <span className='whitespace-nowrap text-[13.4px] font-bold leading-[16.7px] text-[#0c89cd]'>
                     희망 취업 분야
                   </span>
                 </div>
@@ -83,7 +85,12 @@ export const PortfolioPanel = ({ studentId }: PortfolioPanelProps) => {
               <SectionHeader title='수상경력' />
               <div className='flex flex-col text-sm text-foreground'>
                 {portfolio.awards.map((award, idx) => (
-                  <p key={idx} className={idx === 0 ? 'leading-[16.7px]' : 'leading-6 mt-1'}>
+                  <p
+                    key={idx}
+                    className={
+                      idx === 0 ? 'leading-[16.7px]' : 'mt-1 leading-6'
+                    }
+                  >
                     ▪ {award.competition_name} {award.prize}
                   </p>
                 ))}
@@ -96,7 +103,12 @@ export const PortfolioPanel = ({ studentId }: PortfolioPanelProps) => {
               <SectionHeader title='프로젝트 및 경험' />
               <div className='flex flex-col text-sm text-foreground'>
                 {portfolio.projects.map((project, idx) => (
-                  <p key={project.project_id} className={idx === 0 ? 'leading-[16.7px]' : 'leading-6 mt-1'}>
+                  <p
+                    key={project.project_id}
+                    className={
+                      idx === 0 ? 'leading-[16.7px]' : 'mt-1 leading-6'
+                    }
+                  >
                     ▪ {project.project_name}
                   </p>
                 ))}
@@ -114,7 +126,7 @@ export const PortfolioPanel = ({ studentId }: PortfolioPanelProps) => {
                     href={link.link}
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='text-sm text-[#0c89cd] hover:underline truncate'
+                    className='truncate text-sm text-[#0c89cd] hover:underline'
                   >
                     ▪ {link.alt || link.link}
                   </a>

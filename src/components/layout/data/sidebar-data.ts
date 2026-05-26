@@ -9,8 +9,13 @@ import { User } from '@supabase/supabase-js'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
 
-export const getSidebarData = ({ user, dashboardOnly }: { user: User | null; dashboardOnly?: boolean }): SidebarData => {
-  
+export const getSidebarData = ({
+  user,
+  dashboardOnly,
+}: {
+  user: User | null
+  dashboardOnly?: boolean
+}): SidebarData => {
   const baseDashboardItem = {
     title: '대시보드',
     url: '/',

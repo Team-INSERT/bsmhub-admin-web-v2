@@ -49,7 +49,8 @@ export function OverlapConfirmDialog({
                 )}
                 {adj.kind === 'push-start' && (
                   <p className='mt-1 text-xs text-orange-600'>
-                    → 시작일이 {formatDate(toDateStr(adj.newStart))}로 조정됩니다.
+                    → 시작일이 {formatDate(toDateStr(adj.newStart))}로
+                    조정됩니다.
                   </p>
                 )}
               </div>

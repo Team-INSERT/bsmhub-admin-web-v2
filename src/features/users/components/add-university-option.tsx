@@ -6,7 +6,9 @@ type AddUniversityOptionProps = {
   onSuccess?: (newUniv: NewUniversity) => void
 }
 
-export const AddUniversityOption = ({ onSuccess }: AddUniversityOptionProps) => {
+export const AddUniversityOption = ({
+  onSuccess,
+}: AddUniversityOptionProps) => {
   const [modalOpen, setModalOpen] = useState(false)
 
   const handleClick = (e: React.MouseEvent) => {
@@ -24,8 +26,7 @@ export const AddUniversityOption = ({ onSuccess }: AddUniversityOptionProps) => 
           className='flex w-full items-center justify-start text-sm'
           onClick={handleClick}
         >
-          <span className='mr-1'>+</span>
-          새 대학교 추가하기
+          <span className='mr-1'>+</span>새 대학교 추가하기
         </Button>
       </div>
       <AddUniversityModal

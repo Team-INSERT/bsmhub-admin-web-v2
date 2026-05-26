@@ -58,10 +58,12 @@ const handleStudentUniversity = async (
             // 없으면 새로 생성
             const { data: inserted, error: insertError } = await supabase
               .from('universities')
-              .insert([{
-                university_name: data.university_name,
-                university_department: data.university_department,
-              }])
+              .insert([
+                {
+                  university_name: data.university_name,
+                  university_department: data.university_department,
+                },
+              ])
               .select('university_id')
               .single()
             if (insertError) throw new Error(insertError.message)

@@ -17,11 +17,11 @@ import {
 import { useHandleEmploymentMutation } from '../services/employment-companies/handleEmployment'
 import { useHandleFieldTrainingMutation } from '../services/field-training/handleFieldTraining'
 import { useJobListQuery } from '../services/field-training/selectJobList'
-import FieldTrainingEndDialog from './field-training-end-dialog'
-import { FT, EMP, OverlapTarget, FAR_FUTURE } from './career-types'
-import { toDateStr, toDateTimeStr, parseLocalDate } from './career-utils'
 import { checkOverlaps } from './career-overlap'
 import { OverlapConfirmDialog } from './career-overlap-confirm-dialog'
+import { FT, EMP, OverlapTarget, FAR_FUTURE } from './career-types'
+import { toDateStr, toDateTimeStr, parseLocalDate } from './career-utils'
+import FieldTrainingEndDialog from './field-training-end-dialog'
 
 export function FieldTrainingCard({
   ft,
@@ -42,7 +42,9 @@ export function FieldTrainingCard({
   })
   const [jobId, setJobId] = useState(ft.job_id)
   const [endDialogOpen, setEndDialogOpen] = useState(false)
-  const [pendingOverlaps, setPendingOverlaps] = useState<OverlapTarget[] | null>(null)
+  const [pendingOverlaps, setPendingOverlaps] = useState<
+    OverlapTarget[] | null
+  >(null)
 
   const { data: jobs = [] } = useJobListQuery()
   const { mutateAsync: ftMutate } = useHandleFieldTrainingMutation()
@@ -85,17 +87,86 @@ export function FieldTrainingCard({
         if (overlap.type === 'field_training') {
           const t = overlap.target
           if (adj.kind === 'trim-end') {
-            await ftMutate([{ action: 'update', datas: { field_training: { student_id: studentId, company_id: t.company_id, job_id: t.job_id, start_date: t.start_date, end_date: toDateStr(adj.newEnd) } } }])
+            await ftMutate([
+              {
+                action: 'update',
+                datas: {
+                  field_training: {
+                    student_id: studentId,
+                    company_id: t.company_id,
+                    job_id: t.job_id,
+                    start_date: t.start_date,
+                    end_date: toDateStr(adj.newEnd),
+                  },
+                },
+              },
+            ])
           } else if (adj.kind === 'push-start') {
-            await ftMutate([{ action: 'delete', datas: { field_training: { student_id: studentId, company_id: t.company_id, job_id: t.job_id, start_date: t.start_date, end_date: t.end_date ?? '' } } }])
-            await ftMutate([{ action: 'add', datas: { field_training: { student_id: studentId, company_id: t.company_id, job_id: t.job_id, start_date: toDateStr(adj.newStart), end_date: t.end_date, lead_or_part: t.lead_or_part, created_at: toDateTimeStr(new Date()) } } }])
+            await ftMutate([
+              {
+                action: 'delete',
+                datas: {
+                  field_training: {
+                    student_id: studentId,
+                    company_id: t.company_id,
+                    job_id: t.job_id,
+                    start_date: t.start_date,
+                    end_date: t.end_date ?? '',
+                  },
+                },
+              },
+            ])
+            await ftMutate([
+              {
+                action: 'add',
+                datas: {
+                  field_training: {
+                    student_id: studentId,
+                    company_id: t.company_id,
+                    job_id: t.job_id,
+                    start_date: toDateStr(adj.newStart),
+                    end_date: t.end_date,
+                    lead_or_part: t.lead_or_part,
+                    created_at: toDateTimeStr(new Date()),
+                  },
+                },
+              },
+            ])
           }
         } else {
           const t = overlap.target
           if (adj.kind === 'trim-end') {
-            await empMutate([{ action: 'update', datas: { employment_companies: { student_id: studentId, company_id: t.company_id, job_id: t.job_id, original_start_date: t.start_date, start_date: t.start_date, end_date: toDateStr(adj.newEnd) } } }])
+            await empMutate([
+              {
+                action: 'update',
+                datas: {
+                  employment_companies: {
+                    student_id: studentId,
+                    company_id: t.company_id,
+                    job_id: t.job_id,
+                    original_start_date: t.start_date,
+                    start_date: t.start_date,
+                    end_date: toDateStr(adj.newEnd),
+                  },
+                },
+              },
+            ])
           } else if (adj.kind === 'push-start') {
-            await empMutate([{ action: 'update', datas: { employment_companies: { student_id: studentId, company_id: t.company_id, job_id: t.job_id, original_start_date: t.start_date, start_date: toDateStr(adj.newStart), end_date: t.end_date } } }])
+            await empMutate([
+              {
+                action: 'update',
+                datas: {
+                  employment_companies: {
+                    student_id: studentId,
+                    company_id: t.company_id,
+                    job_id: t.job_id,
+                    original_start_date: t.start_date,
+                    start_date: toDateStr(adj.newStart),
+                    end_date: t.end_date,
+                  },
+                },
+              },
+            ])
           }
         }
       }
@@ -109,10 +180,14 @@ export function FieldTrainingCard({
   const handleSave = async () => {
     try {
       const newStart = dateRange.from ?? parseLocalDate(ft.start_date)
-      const newEnd = dateRange.to ?? (ft.end_date ? parseLocalDate(ft.end_date) : FAR_FUTURE)
+      const newEnd =
+        dateRange.to ?? (ft.end_date ? parseLocalDate(ft.end_date) : FAR_FUTURE)
       const overlaps = checkOverlaps(newStart, newEnd, selfKey, allFT, allEMP)
       if (overlaps.some((o) => o.adjustment.kind === 'block')) {
-        toast({ variant: 'destructive', title: '기존 기간을 완전히 덮어버려 저장할 수 없습니다.' })
+        toast({
+          variant: 'destructive',
+          title: '기존 기간을 완전히 덮어버려 저장할 수 없습니다.',
+        })
         return
       }
       if (overlaps.length > 0) {
@@ -148,7 +223,10 @@ export function FieldTrainingCard({
     }
   }
 
-  const handleEarlyEnd = async (endDate: string, convertToEmployment: boolean) => {
+  const handleEarlyEnd = async (
+    endDate: string,
+    convertToEmployment: boolean
+  ) => {
     try {
       await ftMutate([
         {

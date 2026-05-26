@@ -31,15 +31,17 @@ export const getFieldTrainingStatus = (
     String(now.getDate()).padStart(2, '0'),
   ].join('-')
 
-  const isInMilitaryService = military_services.some(({ start_date, end_date }) => {
-    const startYmd = toYmd(start_date)
+  const isInMilitaryService = military_services.some(
+    ({ start_date, end_date }) => {
+      const startYmd = toYmd(start_date)
 
-    if (!startYmd || startYmd > todayYmd) {
-      return false
+      if (!startYmd || startYmd > todayYmd) {
+        return false
+      }
+
+      return end_date === null
     }
-
-    return end_date === null
-  })
+  )
 
   if (isInMilitaryService) {
     return fieldTrainingStatus[4]

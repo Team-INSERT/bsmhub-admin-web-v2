@@ -41,7 +41,9 @@ const handleEmployment = async (editDataList: UserEditType) => {
       case 'add': {
         const { error } = await supabase
           .from('employment_companies')
-          .upsert([{ ...insertData, deleted_at: null }], { ignoreDuplicates: false })
+          .upsert([{ ...insertData, deleted_at: null }], {
+            ignoreDuplicates: false,
+          })
         if (error) throw new Error(error.message)
         break
       }

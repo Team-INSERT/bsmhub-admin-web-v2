@@ -17,26 +17,27 @@ type StudentWithDepartment = StudentPortfolio & {
 export const useAllStudents = () => {
   const fetchAllStudents = async (): Promise<StudentWithDepartment[]> => {
     // Fetch all data in parallel with optimized queries
-    const [studentsResult, profilesResult, studentJobsResult] = await Promise.all([
-      supabase
-        .from('student')
-        .select('student_id, name, email, join_at, departments(department_name)')
-        .order('name'),
-      supabase
-        .from('profile')
-        .select(
-          `owner,
+    const [studentsResult, profilesResult, studentJobsResult] =
+      await Promise.all([
+        supabase
+          .from('student')
+          .select(
+            'student_id, name, email, join_at, departments(department_name)'
+          )
+          .order('name'),
+        supabase
+          .from('profile')
+          .select(
+            `owner,
             description,
             profile_skills(skills!fk_profile_skills_skill_id(skill_name)),
             profile_competitions(competition:competitions(competition_name), prize),
             project_contributors(project:projects(project_id, project_name)),
             profile_link(link, alt)`
-        )
-        .eq('is_team', false),
-      supabase
-        .from('student_jobs')
-        .select('student_id, jobs(job_name)')
-    ])
+          )
+          .eq('is_team', false),
+        supabase.from('student_jobs').select('student_id, jobs(job_name)'),
+      ])
 
     if (studentsResult.error) throw studentsResult.error
     if (!studentsResult.data) return []
@@ -48,14 +49,16 @@ export const useAllStudents = () => {
     })
 
     const jobsMap = new Map()
-    studentJobsResult.data?.forEach((sj: { student_id: string, jobs: { job_name: string } | null }) => {
-      if (!jobsMap.has(sj.student_id)) {
-        jobsMap.set(sj.student_id, [])
+    studentJobsResult.data?.forEach(
+      (sj: { student_id: string; jobs: { job_name: string } | null }) => {
+        if (!jobsMap.has(sj.student_id)) {
+          jobsMap.set(sj.student_id, [])
+        }
+        if (sj.jobs?.job_name) {
+          jobsMap.get(sj.student_id).push(sj.jobs.job_name)
+        }
       }
-      if (sj.jobs?.job_name) {
-        jobsMap.get(sj.student_id).push(sj.jobs.job_name)
-      }
-    })
+    )
 
     // Map students with their data
     const studentsWithProfiles = studentsResult.data.map((student) => {
@@ -91,7 +94,8 @@ export const useAllStudents = () => {
         department_name: string
       }
 
-      const rawProfile = (profileMap.get(student.student_id) as RawProfile) || null
+      const rawProfile =
+        (profileMap.get(student.student_id) as RawProfile) || null
       const dreamJobs = jobsMap.get(student.student_id) || []
 
       return {

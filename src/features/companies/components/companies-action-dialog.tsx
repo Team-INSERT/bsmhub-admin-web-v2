@@ -19,9 +19,9 @@ import {
   companyFieldMetadata,
   CompanyFormFieldType,
 } from '../data/schema'
+import { geocodeAddress } from '../services/geocodeAddress'
 import { useInsertCompanyMutation } from '../services/insertCompany'
 import { useUpdateCompanyMutation } from '../services/updateCompany'
-import { geocodeAddress } from '../services/geocodeAddress'
 import { CompanyFormField } from './companiesActionField'
 
 interface Props {
@@ -85,7 +85,12 @@ export function CompaniesActionDialog({
 
     try {
       if (isEdit && currentRow) {
-        await updateCompany({ ...payload, company_id: currentRow.company_id, latitude, longitude })
+        await updateCompany({
+          ...payload,
+          company_id: currentRow.company_id,
+          latitude,
+          longitude,
+        })
       } else {
         await insertCompany({ ...payload, latitude, longitude })
         form.reset(defaultValues)

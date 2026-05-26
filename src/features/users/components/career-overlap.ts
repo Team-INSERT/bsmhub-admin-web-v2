@@ -1,10 +1,21 @@
-import { FAR_FUTURE, OverlapAdjustment, OverlapTarget, FT, EMP } from './career-types'
+import {
+  FAR_FUTURE,
+  OverlapAdjustment,
+  OverlapTarget,
+  FT,
+  EMP,
+} from './career-types'
 import { parseLocalDate } from './career-utils'
 
 const rangesOverlap = (aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) =>
   aStart.getTime() <= bEnd.getTime() && aEnd.getTime() >= bStart.getTime()
 
-function calcAdjustment(newStart: Date, newEnd: Date, existStart: Date, existEnd: Date): OverlapAdjustment {
+function calcAdjustment(
+  newStart: Date,
+  newEnd: Date,
+  existStart: Date,
+  existEnd: Date
+): OverlapAdjustment {
   if (newStart.getTime() > existStart.getTime()) {
     // 수정 레코드가 기존 레코드 중간에서 시작 → 기존 end를 newStart-1로 자름
     return { kind: 'trim-end', newEnd: new Date(newStart.getTime() - 86400000) }
@@ -33,7 +44,11 @@ export function checkOverlaps(
     const existStart = parseLocalDate(ft.start_date)
     const existEnd = ft.end_date ? parseLocalDate(ft.end_date) : FAR_FUTURE
     if (!rangesOverlap(newStart, newEnd, existStart, existEnd)) continue
-    results.push({ type: 'field_training', target: ft, adjustment: calcAdjustment(newStart, newEnd, existStart, existEnd) })
+    results.push({
+      type: 'field_training',
+      target: ft,
+      adjustment: calcAdjustment(newStart, newEnd, existStart, existEnd),
+    })
   }
   for (const emp of allEMP) {
     const empKey = `emp-${emp.company_id}-${emp.job_id}-${emp.start_date}`
@@ -41,7 +56,11 @@ export function checkOverlaps(
     const existStart = parseLocalDate(emp.start_date)
     const existEnd = emp.end_date ? parseLocalDate(emp.end_date) : FAR_FUTURE
     if (!rangesOverlap(newStart, newEnd, existStart, existEnd)) continue
-    results.push({ type: 'employment', target: emp, adjustment: calcAdjustment(newStart, newEnd, existStart, existEnd) })
+    results.push({
+      type: 'employment',
+      target: emp,
+      adjustment: calcAdjustment(newStart, newEnd, existStart, existEnd),
+    })
   }
   return results
 }
