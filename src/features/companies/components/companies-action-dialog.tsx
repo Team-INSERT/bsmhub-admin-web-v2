@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Form } from '@/components/ui/form'
 import {
-  Company, // companySchema,
+  CompanySupabase,
   companyFormSchema,
   CompanyForm,
   companyFieldMetadata,
@@ -21,10 +21,11 @@ import {
 } from '../data/schema'
 import { useInsertCompanyMutation } from '../services/insertCompany'
 import { useUpdateCompanyMutation } from '../services/updateCompany'
+import { geocodeAddress } from '../services/geocodeAddress'
 import { CompanyFormField } from './companiesActionField'
 
 interface Props {
-  currentRow?: Company
+  currentRow?: CompanySupabase
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -63,11 +64,30 @@ export function CompaniesActionDialog({
   const { mutate: updateCompany } = useUpdateCompanyMutation()
   const onSubmit = async (value: CompanyForm) => {
     const { isEdit: _, ...payload } = value
+
+    let latitude: number | null = null
+    let longitude: number | null = null
+
+    if (payload.company_address) {
+      const addressChanged =
+        !isEdit || payload.company_address !== currentRow?.company_address
+      if (addressChanged) {
+        const coords = await geocodeAddress(payload.company_address)
+        if (coords) {
+          latitude = coords.latitude
+          longitude = coords.longitude
+        }
+      } else {
+        latitude = currentRow?.latitude ?? null
+        longitude = currentRow?.longitude ?? null
+      }
+    }
+
     try {
       if (isEdit && currentRow) {
-        await updateCompany({ ...payload, company_id: currentRow.company_id, latitude: null, longitude: null })
+        await updateCompany({ ...payload, company_id: currentRow.company_id, latitude, longitude })
       } else {
-        await insertCompany({ ...payload, latitude: null, longitude: null })
+        await insertCompany({ ...payload, latitude, longitude })
         form.reset(defaultValues)
       }
     } catch (error) {

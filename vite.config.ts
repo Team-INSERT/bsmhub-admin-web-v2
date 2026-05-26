@@ -12,6 +12,11 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
+      '/vworld-proxy': {
+        target: 'https://api.vworld.kr',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/vworld-proxy/, ''),
+      },
       '/api/live': {
         target: process.env.GRAFANA_URL,
         changeOrigin: true,
