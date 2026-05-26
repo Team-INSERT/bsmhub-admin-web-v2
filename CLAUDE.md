@@ -5,7 +5,7 @@
 - Vite + React 19 + TypeScript SPA (Next.js 아님)
 - TanStack Router (파일 기반 라우팅), TanStack Query, Supabase 백엔드
 - shadcn/ui (Radix UI + Tailwind CSS) 컴포넌트 라이브러리
-- pnpm 패키지 매니저, Node.js 22
+- pnpm 패키지 매니저 (버전은 `package.json`의 `packageManager` 필드로 고정), Node.js 22
 
 ## CI/CD 파이프라인
 
