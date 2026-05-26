@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import { MergeDeep } from 'type-fest'
 import { Database, Tables } from '@/utils/supabase/database.types'
 
@@ -8,27 +7,16 @@ export type UserSupabase = BaseType['student']['Row']
 export type FieldTrainingType = BaseType['field_training']['Row']
 export type EmploymentCompaniesType = BaseType['employment_companies']['Row']
 export type MilitaryServicesType = BaseType['military_services']['Row']
-export type MilitaryServicesWithStatusType = MergeDeep<
-  Tables<'military_services'>,
-  {
-    military_service_statuses: Pick<
-      Tables<'military_service_statuses'>,
-      'military_service_status_name'
-    > | null
-  }
->
 export type StudentUniversitiesType = BaseType['student_universities']['Row']
 
-export const userSchema = z.object({
-  student_id: z.string(),
-  name: z.string(),
-  join_at: z.string(),
-  email: z.string(),
-  phone: z.string(),
-  user_status: z.string(),
-})
-
-export type User = z.infer<typeof userSchema>
+export type User = {
+  student_id: string
+  name: string
+  join_at: string
+  email: string
+  phone: string
+  user_status: string
+}
 
 type UserKeyType = keyof Omit<User, 'student_id'>
 

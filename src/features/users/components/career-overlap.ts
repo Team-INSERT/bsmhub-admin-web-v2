@@ -4,7 +4,7 @@ import { parseLocalDate } from './career-utils'
 const rangesOverlap = (aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) =>
   aStart.getTime() <= bEnd.getTime() && aEnd.getTime() >= bStart.getTime()
 
-export function calcAdjustment(newStart: Date, newEnd: Date, existStart: Date, existEnd: Date): OverlapAdjustment {
+function calcAdjustment(newStart: Date, newEnd: Date, existStart: Date, existEnd: Date): OverlapAdjustment {
   if (newStart.getTime() > existStart.getTime()) {
     // 수정 레코드가 기존 레코드 중간에서 시작 → 기존 end를 newStart-1로 자름
     return { kind: 'trim-end', newEnd: new Date(newStart.getTime() - 86400000) }

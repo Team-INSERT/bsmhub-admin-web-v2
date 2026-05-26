@@ -3,7 +3,7 @@ import supabase from '@/utils/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { CompanySupabase } from '../data/schema'
 
-export const updateCompany = async (
+const updateCompany = async (
   company: CompanySupabase
 ): Promise<CompanySupabase> => {
   const { data, error } = await supabase

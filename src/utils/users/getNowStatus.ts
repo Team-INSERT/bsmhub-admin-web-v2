@@ -5,7 +5,7 @@ import {
   StudentUniversitiesType,
 } from '@/features/users/data/schema'
 
-export const fieldTrainingStatus: Record<number, string> = {
+const fieldTrainingStatus: Record<number, string> = {
   0: '미취업',
   1: '현장 실습',
   2: '취업',

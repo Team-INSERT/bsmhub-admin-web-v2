@@ -5,7 +5,7 @@ import { UserEditType } from '../../data/schema'
 
 type FieldTrainingInsert =
   Database['public']['Tables']['field_training']['Insert']
-export type FieldTrainingUpdate =
+type FieldTrainingUpdate =
   Database['public']['Tables']['field_training']['Update']
 
 // 실제 현장실습 데이터 처리 함수 (mutationFn)

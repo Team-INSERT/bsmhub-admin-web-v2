@@ -5,7 +5,7 @@ import { UserEditType } from '../../data/schema'
 
 type EmploymentCompaniesInsert =
   Database['public']['Tables']['employment_companies']['Insert']
-export type EmploymentCompaniesUpdate =
+type EmploymentCompaniesUpdate =
   Database['public']['Tables']['employment_companies']['Update']
 
 // 실제 취업 데이터 처리 함수 (mutationFn)

@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import supabase from '@/utils/supabase/client'
 
-export type StudentUniversityEditType = {
+type StudentUniversityEditType = {
   action: 'add' | 'update' | 'delete'
   datas: {
     student_university: {

@@ -8,7 +8,7 @@ export const toDateStr = (date: Date) => {
 export const toDateTimeStr = (date: Date) =>
   `${toDateStr(date)} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
 
-export const toLocalMidnight = (date: Date) => {
+const toLocalMidnight = (date: Date) => {
   const d = new Date(date)
   d.setHours(0, 0, 0, 0)
   return d

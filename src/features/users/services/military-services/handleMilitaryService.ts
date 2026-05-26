@@ -7,7 +7,7 @@ type MilitaryServiceInsert =
 type MilitaryServiceUpdate =
   Database['public']['Tables']['military_services']['Update']
 
-export type MilitaryServiceEditType = {
+type MilitaryServiceEditType = {
   action: 'add' | 'update' | 'delete'
   datas: {
     military_service: {

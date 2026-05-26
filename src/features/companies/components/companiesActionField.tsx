@@ -10,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { CompanyForm, CompanyFormFieldType } from '../data/schema'
 
-export interface CompanyFormFieldProps {
+interface CompanyFormFieldProps {
   name: CompanyFormFieldType
   label: string
   placeholder: string

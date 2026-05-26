@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { UserEditType } from '../data/schema'
 
-export type DetailType =
+type DetailType =
   | 'certificates'
   | 'activities'
   | 'career'
