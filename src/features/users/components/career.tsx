@@ -138,35 +138,41 @@ export const Career = ({
               },
             }}
             components={{
-              IconLeft: () => <ChevronLeft className='h-4 w-4' />,
-              IconRight: () => <ChevronRight className='h-4 w-4' />,
+              Chevron: ({ orientation }) =>
+                orientation === 'left' ? (
+                  <ChevronLeft className='h-4 w-4' />
+                ) : (
+                  <ChevronRight className='h-4 w-4' />
+                ),
             }}
             classNames={{
               months:
                 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
               month: 'space-y-4 w-full',
-              caption: 'flex justify-center pt-1 relative items-center',
+              month_caption: 'flex justify-center pt-1 relative items-center',
               caption_label: 'text-sm font-medium',
               nav: 'space-x-1 flex items-center',
-              nav_button: cn(
+              button_previous: cn(
                 buttonVariants({ variant: 'outline' }),
-                'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100'
+                'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 absolute left-1'
               ),
-              nav_button_previous: 'absolute left-1',
-              nav_button_next: 'absolute right-1',
-              table: 'w-full border-collapse space-y-1',
-              head_row: 'flex justify-around',
-              head_cell:
+              button_next: cn(
+                buttonVariants({ variant: 'outline' }),
+                'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 absolute right-1'
+              ),
+              month_grid: 'w-full border-collapse space-y-1',
+              weekdays: 'flex justify-around',
+              weekday:
                 'text-muted-foreground rounded-md flex-1 font-normal text-[0.8rem]',
-              row: 'flex w-full mt-2',
-              cell: 'relative flex-1 p-0 text-center text-sm focus-within:relative focus-within:z-20',
-              day: cn(
+              week: 'flex w-full mt-2',
+              day: 'relative flex-1 p-0 text-center text-sm focus-within:relative focus-within:z-20',
+              day_button: cn(
                 buttonVariants({ variant: 'ghost' }),
                 'w-full h-8 p-0 font-normal pointer-events-none'
               ),
-              day_today: 'bg-accent text-accent-foreground',
-              day_outside: 'text-muted-foreground opacity-50',
-              day_hidden: 'invisible',
+              today: 'bg-accent text-accent-foreground',
+              outside: 'text-muted-foreground opacity-50',
+              hidden: 'invisible',
             }}
           />
         </div>
