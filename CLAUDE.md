@@ -9,25 +9,30 @@
 
 ## CI/CD 파이프라인
 
-main 브랜치에 push/PR 시 GitHub Actions가 아래 4가지를 순서대로 실행한다.
+main 브랜치에 push/PR 시 GitHub Actions가 아래 5단계를 순서대로 실행한다.
 하나라도 실패하면 CI 실패 → 배포 차단.
 
 | 순서 | 명령어 | 검사 내용 |
 |------|--------|-----------|
+| 0 | `pnpm install --frozen-lockfile` | 의존성 설치 (lockfile 불일치, 빌드 스크립트 오류 등) |
 | 1 | `pnpm lint` | ESLint 규칙 위반 |
 | 2 | `pnpm knip` | 미사용 파일, export, 의존성 |
 | 3 | `pnpm format:check` | Prettier 포맷 불일치 |
 | 4 | `pnpm build` | TypeScript 타입 에러 + Vite 빌드 실패 |
 
-## Push 전 필수 검증
+## Push 전 필수 검증 (절대 규칙)
 
-코드를 push하기 전에 반드시 아래 명령어를 실행하여 CI와 동일한 검증을 로컬에서 통과시킨다:
+**CI가 통과하지 않는 코드는 절대로 push하지 않는다.**
+
+코드를 push하기 전에 반드시 아래 명령어를 **모두** 실행하여 CI와 동일한 검증을 로컬에서 통과시킨다:
 
 ```sh
-pnpm lint && pnpm knip && pnpm format:check && pnpm build
+pnpm install --frozen-lockfile && pnpm lint && pnpm knip && pnpm format:check && pnpm build
 ```
 
-실패 시 push하지 않는다. 실패한 체크를 먼저 수정한 뒤 다시 실행한다.
+- 하나라도 실패하면 push하지 않는다
+- 실패한 체크를 먼저 수정한 뒤 전체를 다시 실행한다
+- `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml` 등 설정 파일을 수정한 경우 `pnpm install --frozen-lockfile` 검증이 특히 중요하다
 
 ## 코드 작성 규칙
 
