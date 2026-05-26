@@ -48,26 +48,28 @@ jobs:
 
       - name: Setup SSH
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          cat >> ~/.ssh/config << EOF
+          mkdir -p $HOME/.ssh
+          chmod 700 $HOME/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > $HOME/.ssh/id_ed25519
+          chmod 600 $HOME/.ssh/id_ed25519
+          cat > $HOME/.ssh/config << EOF
           Host deploy-server
             HostName ssh-admin.insert.team
             User root
-            IdentityFile ~/.ssh/id_ed25519
+            IdentityFile $HOME/.ssh/id_ed25519
             ProxyCommand cloudflared access ssh --hostname %h --id ${{ secrets.CF_ACCESS_CLIENT_ID }} --secret ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
             StrictHostKeyChecking no
             UserKnownHostsFile /dev/null
           EOF
+          chmod 644 $HOME/.ssh/config
 
       - name: Deploy to server
         run: |
           rsync -avz --delete \
-            -e "ssh -F ~/.ssh/config" \
+            -e "ssh -F $HOME/.ssh/config" \
             dist/ \
             deploy-server:/usr/share/nginx/html/admin/
 
       - name: Verify deployment
         run: |
-          ssh -F ~/.ssh/config deploy-server "test -f /usr/share/nginx/html/admin/index.html && echo 'Deploy OK' || (echo 'Deploy FAILED' && exit 1)"
+          ssh -F $HOME/.ssh/config deploy-server "test -f /usr/share/nginx/html/admin/index.html && echo 'Deploy OK' || (echo 'Deploy FAILED' && exit 1)"
