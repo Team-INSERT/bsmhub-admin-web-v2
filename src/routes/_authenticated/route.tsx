@@ -23,36 +23,45 @@ let cachedUserData: CachedUserData | null = null
 
 export const Route = createFileRoute('/_authenticated')({
   component: RouteComponent,
-  beforeLoad: async () => {
-    // 같은 사용자로 이미 로드되었다면 캐시된 데이터 반환
+  beforeLoad: async ({ matches }) => {
+    let user: User
+    let adminStatus: CachedUserData['adminStatus']
+
+    // 같은 사용자로 이미 로드되었다면 캐시된 데이터 재사용
     if (cachedUserData) {
-      return {
-        user: cachedUserData.user,
-        isReadonly: cachedUserData.adminStatus.isReadonly,
-        dashboardOnly: cachedUserData.adminStatus.dashboardOnly,
+      user = cachedUserData.user
+      adminStatus = cachedUserData.adminStatus
+    } else {
+      const {
+        data: { user: authUser },
+        error,
+      } = await supabase.auth.getUser()
+      if (error instanceof AuthSessionMissingError || !authUser) {
+        throw redirect({
+          to: '/sign-in',
+        })
+      } else if (error) throw error
+
+      adminStatus = await getAdminStatus(authUser.id)
+
+      if (!adminStatus.canAccess) {
+        throw redirect({
+          to: '/403',
+        })
       }
+
+      user = authUser
+      // 이번에 로드한 데이터를 캐시에 저장
+      cachedUserData = { user, adminStatus }
     }
 
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser()
-    if (error instanceof AuthSessionMissingError || !user) {
-      throw redirect({
-        to: '/sign-in',
-      })
-    } else if (error) throw error
-
-    const adminStatus = await getAdminStatus(user.id)
-
-    if (!adminStatus.canAccess) {
-      throw redirect({
-        to: '/403',
-      })
+    // dashboard_only 권한은 대시보드(_authenticated index) 외 라우트 접근 차단.
+    // location.pathname은 basepath(/admin)를 포함하므로 basepath와 무관한
+    // leaf 라우트 id로 판정해야 무한 리다이렉트 루프가 발생하지 않는다.
+    const leafRouteId = matches[matches.length - 1]?.routeId
+    if (adminStatus.dashboardOnly && leafRouteId !== '/_authenticated/') {
+      throw redirect({ to: '/' })
     }
-
-    // 이번에 로드한 데이터를 캐시에 저장
-    cachedUserData = { user, adminStatus }
 
     return {
       user,
